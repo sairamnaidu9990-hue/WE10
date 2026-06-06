@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const express = require("express");
 const { connectDatabase } = require("./db");
 const AdminUser = require("./models/adminUser");
+const BrandSettings = require("./models/brandSettings");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -24,6 +25,78 @@ app.get("/health", (req, res) => {
     status: "ok",
     database: "connected",
   });
+});
+
+function formatBrandSettings(settings) {
+  return {
+    brandName: settings.brandName,
+    logoUrl: settings.logoUrl,
+    faviconUrl: settings.faviconUrl,
+    domain: settings.domain,
+    headerBackgroundColor: settings.headerBackgroundColor,
+    headerTextColor: settings.headerTextColor,
+    headerAccentColor: settings.headerAccentColor,
+  };
+}
+
+async function getBrandSettings() {
+  let settings = await BrandSettings.findOne();
+
+  if (!settings) {
+    settings = await BrandSettings.create({});
+  }
+
+  return settings;
+}
+
+app.get("/api/brand-settings", async (req, res) => {
+  try {
+    const settings = await getBrandSettings();
+
+    return res.json({
+      settings: formatBrandSettings(settings),
+    });
+  } catch (error) {
+    console.error("Failed to load brand settings:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal memuat pengaturan brand.",
+    });
+  }
+});
+
+app.put("/api/admin/brand-settings", async (req, res) => {
+  try {
+    const settings = await getBrandSettings();
+    const allowedFields = [
+      "brandName",
+      "logoUrl",
+      "faviconUrl",
+      "domain",
+      "headerBackgroundColor",
+      "headerTextColor",
+      "headerAccentColor",
+    ];
+
+    for (const field of allowedFields) {
+      if (typeof req.body[field] === "string") {
+        settings[field] = req.body[field].trim();
+      }
+    }
+
+    await settings.save();
+
+    return res.json({
+      message: "Pengaturan brand berhasil disimpan.",
+      settings: formatBrandSettings(settings),
+    });
+  } catch (error) {
+    console.error("Failed to save brand settings:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal menyimpan pengaturan brand.",
+    });
+  }
 });
 
 app.post("/api/admin/login", async (req, res) => {

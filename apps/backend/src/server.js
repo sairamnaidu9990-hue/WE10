@@ -29,6 +29,7 @@ app.get("/health", (req, res) => {
 app.post("/api/admin/login", async (req, res) => {
   try {
     const username = String(req.body.username || "").trim().toLowerCase();
+    const normalizedUsername = username.includes("@") ? username.split("@")[0] : username;
     const password = String(req.body.password || "");
 
     if (!username || !password) {
@@ -37,7 +38,7 @@ app.post("/api/admin/login", async (req, res) => {
       });
     }
 
-    const admin = await AdminUser.findOne({ username });
+    const admin = await AdminUser.findOne({ username: normalizedUsername });
 
     if (!admin) {
       return res.status(401).json({

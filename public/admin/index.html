@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WE10 Admin Login</title>
+    <link rel="stylesheet" href="/admin/styles.css" />
+  </head>
+  <body>
+    <main class="login-shell">
+      <section class="brand-panel" aria-label="WE10 admin overview">
+        <div class="brand-mark">WE10</div>
+        <div class="brand-content">
+          <p class="eyebrow">Admin Console</p>
+          <h1>Kelola panel WE10 dengan akses yang aman.</h1>
+          <p class="brand-copy">
+            Masuk untuk mengatur data, memantau aktivitas, dan menjaga operasional dashboard tetap rapi.
+          </p>
+        </div>
+        <div class="system-card">
+          <span class="status-dot"></span>
+          <div>
+            <strong>Backend aktif</strong>
+            <p>MongoDB terhubung dan siap menerima request admin.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel" aria-label="Login admin">
+        <form class="login-card" id="loginForm">
+          <div class="form-header">
+            <p class="eyebrow">Secure Login</p>
+            <h2>Masuk Admin</h2>
+          </div>
+
+          <label class="field">
+            <span>Username</span>
+            <input id="username" name="username" type="text" autocomplete="username" placeholder="Masukkan username" required />
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <div class="password-control">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Masukkan password"
+                required
+              />
+              <button type="button" id="togglePassword" aria-label="Tampilkan password">Lihat</button>
+            </div>
+          </label>
+
+          <div class="form-row">
+            <label class="remember">
+              <input type="checkbox" name="remember" />
+              <span>Ingat sesi ini</span>
+            </label>
+            <a href="/health">Status server</a>
+          </div>
+
+          <button class="submit-button" type="submit" id="submitButton">
+            <span>Masuk</span>
+          </button>
+
+          <p class="message" id="message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="/admin/app.js"></script>
+  </body>
+</html>

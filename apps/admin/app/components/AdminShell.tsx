@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode, useState } from "react";
-import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   CreditCard,
@@ -31,7 +31,37 @@ type AdminShellProps = {
 
 export default function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const adminSession = window.localStorage.getItem("we10_admin");
+    const hasAuthCookie = document.cookie
+      .split("; ")
+      .some((cookie) => cookie === "we10_admin_auth=1");
+
+    if (!adminSession && !hasAuthCookie) {
+      router.replace("/");
+      return;
+    }
+
+    setIsCheckingSession(false);
+  }, [router]);
+
+  function handleLogout() {
+    window.localStorage.removeItem("we10_admin");
+    document.cookie = "we10_admin_auth=; path=/; max-age=0; SameSite=Lax";
+    router.replace("/");
+  }
+
+  if (isCheckingSession) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[#101115] text-sm text-[#a1a8b3]">
+        Memeriksa sesi admin...
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#101115] text-white">
@@ -78,16 +108,17 @@ export default function AdminShell({ children }: AdminShellProps) {
         </nav>
 
         <div className="border-t border-white/10 p-4">
-          <a
+          <button
+            type="button"
+            onClick={handleLogout}
             className={`flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-[#ff9c90] transition hover:bg-white/10 ${
               sidebarOpen ? "justify-start" : "justify-center"
             }`}
-            href="/"
             title={!sidebarOpen ? "Keluar" : undefined}
           >
             <LogOut size={20} />
             <span className={sidebarOpen ? "block" : "hidden"}>Keluar</span>
-          </a>
+          </button>
         </div>
       </aside>
 

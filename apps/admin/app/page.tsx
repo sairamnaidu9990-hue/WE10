@@ -38,6 +38,7 @@ export default function AdminLoginPage() {
       }
 
       window.localStorage.setItem("we10_admin", JSON.stringify(data.admin));
+      document.cookie = "we10_admin_auth=1; path=/; max-age=86400; SameSite=Lax";
       router.push("/dashboard");
     } catch (error) {
       setState("error");

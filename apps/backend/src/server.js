@@ -46,6 +46,12 @@ app.post("/api/admin/login", async (req, res) => {
       });
     }
 
+    if (admin.isSuspended) {
+      return res.status(403).json({
+        message: "Akun admin sedang disuspend.",
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
 
     if (!isPasswordValid) {
@@ -69,6 +75,182 @@ app.post("/api/admin/login", async (req, res) => {
 
     return res.status(500).json({
       message: "Server gagal memproses login.",
+    });
+  }
+});
+
+function formatAdmin(admin) {
+  return {
+    id: admin._id,
+    username: admin.username,
+    role: admin.role,
+    isSuspended: admin.isSuspended,
+    lastLoginAt: admin.lastLoginAt,
+    createdAt: admin.createdAt,
+  };
+}
+
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const admins = await AdminUser.find().sort({ createdAt: -1 });
+
+    return res.json({
+      admins: admins.map(formatAdmin),
+    });
+  } catch (error) {
+    console.error("Failed to load admins:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal memuat data admin.",
+    });
+  }
+});
+
+app.post("/api/admin/users", async (req, res) => {
+  try {
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+    const role = String(req.body.role || "admin").trim().toLowerCase();
+
+    if (!username || !password) {
+      return res.status(400).json({
+        message: "Username dan password wajib diisi.",
+      });
+    }
+
+    const existingAdmin = await AdminUser.findOne({ username });
+
+    if (existingAdmin) {
+      return res.status(409).json({
+        message: "Username admin sudah digunakan.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const admin = await AdminUser.create({
+      username,
+      passwordHash,
+      role,
+    });
+
+    return res.status(201).json({
+      message: "Admin berhasil ditambahkan.",
+      admin: formatAdmin(admin),
+    });
+  } catch (error) {
+    console.error("Failed to create admin:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal menambahkan admin.",
+    });
+  }
+});
+
+app.patch("/api/admin/users/:id/password", async (req, res) => {
+  try {
+    const password = String(req.body.password || "");
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password minimal 6 karakter.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const admin = await AdminUser.findByIdAndUpdate(
+      req.params.id,
+      { passwordHash },
+      { new: true },
+    );
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin tidak ditemukan.",
+      });
+    }
+
+    return res.json({
+      message: "Password admin berhasil diubah.",
+      admin: formatAdmin(admin),
+    });
+  } catch (error) {
+    console.error("Failed to update admin password:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mengubah password admin.",
+    });
+  }
+});
+
+app.patch("/api/admin/users/:id/status", async (req, res) => {
+  try {
+    const admin = await AdminUser.findByIdAndUpdate(
+      req.params.id,
+      { isSuspended: Boolean(req.body.isSuspended) },
+      { new: true },
+    );
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin tidak ditemukan.",
+      });
+    }
+
+    return res.json({
+      message: admin.isSuspended ? "Admin berhasil disuspend." : "Suspend admin dibuka.",
+      admin: formatAdmin(admin),
+    });
+  } catch (error) {
+    console.error("Failed to update admin status:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mengubah status admin.",
+    });
+  }
+});
+
+app.patch("/api/admin/users/:id/role", async (req, res) => {
+  try {
+    const role = String(req.body.role || "admin").trim().toLowerCase();
+    const admin = await AdminUser.findByIdAndUpdate(req.params.id, { role }, { new: true });
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin tidak ditemukan.",
+      });
+    }
+
+    return res.json({
+      message: "Role admin berhasil diubah.",
+      admin: formatAdmin(admin),
+    });
+  } catch (error) {
+    console.error("Failed to update admin role:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal mengubah role admin.",
+    });
+  }
+});
+
+app.delete("/api/admin/users/:id", async (req, res) => {
+  try {
+    const admin = await AdminUser.findByIdAndDelete(req.params.id);
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin tidak ditemukan.",
+      });
+    }
+
+    return res.json({
+      message: "Admin berhasil dihapus.",
+    });
+  } catch (error) {
+    console.error("Failed to delete admin:", error.message);
+
+    return res.status(500).json({
+      message: "Gagal menghapus admin.",
     });
   }
 });

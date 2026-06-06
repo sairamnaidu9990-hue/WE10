@@ -17,6 +17,10 @@ const adminUserSchema = new mongoose.Schema(
       type: String,
       default: "admin",
     },
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
     lastLoginAt: {
       type: Date,
       default: null,

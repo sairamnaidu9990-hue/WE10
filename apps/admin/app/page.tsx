@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
       >
         <div className="mb-7 text-center">
           <h1 className="text-3xl font-bold tracking-normal text-[#f4f5f7]">Admin Login</h1>
-          <p className="mt-3 text-sm text-[#a1a8b3]">Masuk ke dashboard KITAGG</p>
+          <p className="mt-3 text-sm text-[#a1a8b3]">Masuk ke dashboard WE10</p>
         </div>
 
         <label className="mb-5 block">
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
             className="h-[50px] w-full rounded-xl border border-[#444751] bg-[#2a2b31] px-4 text-[15px] text-[#eef0f4] outline-none transition placeholder:text-[#818895] focus:border-[#6a6f7c] focus:ring-4 focus:ring-white/5"
             type="text"
             autoComplete="username"
-            placeholder="admin@webtopup.com"
+            placeholder="admin"
             required
           />
         </label>

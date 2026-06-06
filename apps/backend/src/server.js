@@ -7,10 +7,11 @@ const { connectDatabase } = require("./db");
 
 const app = express();
 const port = process.env.PORT || 5000;
+const adminPath = path.join(__dirname, "..", "..", "admin");
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use("/admin", express.static(adminPath));
 
 app.get("/", (req, res) => {
   res.json({
@@ -27,7 +28,7 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "admin", "index.html"));
+  res.sendFile(path.join(adminPath, "index.html"));
 });
 
 app.post("/api/admin/login", (req, res) => {

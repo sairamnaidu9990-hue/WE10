@@ -64,7 +64,7 @@ export default function ProductSection() {
                 </p>
               </div>
               <span className="mt-5 flex items-center gap-2 text-sm font-black text-[#0e7490]">
-                Lihat detail
+                Mainkan
                 <ArrowRight size={17} className="transition group-hover:translate-x-1" />
               </span>
             </a>

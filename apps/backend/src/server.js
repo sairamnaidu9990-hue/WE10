@@ -6,6 +6,7 @@ const express = require("express");
 const { connectDatabase } = require("./db");
 const AdminUser = require("./models/adminUser");
 const BrandSettings = require("./models/brandSettings");
+const Product = require("./models/product");
 const User = require("./models/user");
 
 const app = express();
@@ -213,6 +214,143 @@ function formatUser(user) {
     createdAt: user.createdAt,
   };
 }
+
+function createSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function formatProduct(product) {
+  return {
+    id: product._id,
+    name: product.name,
+    slug: product.slug,
+    logoUrl: product.logoUrl,
+    shortDescription: product.shortDescription,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+  };
+}
+
+async function makeUniqueProductSlug(name, currentId) {
+  const baseSlug = createSlug(name) || "product";
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (await Product.findOne({ slug, ...(currentId ? { _id: { $ne: currentId } } : {}) })) {
+    slug = `${baseSlug}-${counter}`;
+    counter += 1;
+  }
+
+  return slug;
+}
+
+app.get("/api/products", async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    return res.json({ products: products.map(formatProduct) });
+  } catch (error) {
+    console.error("Failed to load products:", error.message);
+    return res.status(500).json({ message: "Gagal memuat produk." });
+  }
+});
+
+app.get("/api/products/:slug", async (req, res) => {
+  try {
+    const product = await Product.findOne({ slug: req.params.slug });
+    if (!product) return res.status(404).json({ message: "Produk tidak ditemukan." });
+
+    return res.json({ product: formatProduct(product) });
+  } catch (error) {
+    console.error("Failed to load product:", error.message);
+    return res.status(500).json({ message: "Gagal memuat detail produk." });
+  }
+});
+
+app.get("/api/admin/products", async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    return res.json({ products: products.map(formatProduct) });
+  } catch (error) {
+    console.error("Failed to load admin products:", error.message);
+    return res.status(500).json({ message: "Gagal memuat produk." });
+  }
+});
+
+app.post("/api/admin/products", async (req, res) => {
+  try {
+    const name = String(req.body.name || "").trim();
+    const logoUrl = String(req.body.logoUrl || "").trim();
+    const shortDescription = String(req.body.shortDescription || "").trim();
+
+    if (!name) {
+      return res.status(400).json({ message: "Nama produk wajib diisi." });
+    }
+
+    const product = await Product.create({
+      name,
+      slug: await makeUniqueProductSlug(name),
+      logoUrl,
+      shortDescription,
+    });
+
+    return res.status(201).json({
+      message: "Produk berhasil ditambahkan.",
+      product: formatProduct(product),
+    });
+  } catch (error) {
+    console.error("Failed to create product:", error.message);
+    return res.status(500).json({ message: "Gagal menambahkan produk." });
+  }
+});
+
+app.patch("/api/admin/products/:id", async (req, res) => {
+  try {
+    const updates = {};
+
+    if (typeof req.body.name === "string") {
+      updates.name = req.body.name.trim();
+    }
+    if (typeof req.body.logoUrl === "string") {
+      updates.logoUrl = req.body.logoUrl.trim();
+    }
+    if (typeof req.body.shortDescription === "string") {
+      updates.shortDescription = req.body.shortDescription.trim();
+    }
+
+    if (!updates.name) {
+      return res.status(400).json({ message: "Nama produk wajib diisi." });
+    }
+
+    updates.slug = await makeUniqueProductSlug(updates.name, req.params.id);
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
+    if (!product) return res.status(404).json({ message: "Produk tidak ditemukan." });
+
+    return res.json({
+      message: "Produk berhasil disimpan.",
+      product: formatProduct(product),
+    });
+  } catch (error) {
+    console.error("Failed to update product:", error.message);
+    return res.status(500).json({ message: "Gagal menyimpan produk." });
+  }
+});
+
+app.delete("/api/admin/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: "Produk tidak ditemukan." });
+
+    return res.json({ message: "Produk berhasil dihapus." });
+  } catch (error) {
+    console.error("Failed to delete product:", error.message);
+    return res.status(500).json({ message: "Gagal menghapus produk." });
+  }
+});
 
 app.post("/api/users/register", async (req, res) => {
   try {

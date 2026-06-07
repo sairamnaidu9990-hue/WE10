@@ -46,6 +46,18 @@ function formatBrandSettings(settings) {
     bannerSubtitle: settings.bannerSubtitle,
     bannerLink: settings.bannerLink,
     bannerBackgroundColor: settings.bannerBackgroundColor,
+    footerEnabled: settings.footerEnabled,
+    footerTitle: settings.footerTitle,
+    footerDescription: settings.footerDescription,
+    footerCopyright: settings.footerCopyright,
+    footerBackgroundColor: settings.footerBackgroundColor,
+    footerTextColor: settings.footerTextColor,
+    footerLinkOneLabel: settings.footerLinkOneLabel,
+    footerLinkOneUrl: settings.footerLinkOneUrl,
+    footerLinkTwoLabel: settings.footerLinkTwoLabel,
+    footerLinkTwoUrl: settings.footerLinkTwoUrl,
+    footerLinkThreeLabel: settings.footerLinkThreeLabel,
+    footerLinkThreeUrl: settings.footerLinkThreeUrl,
   };
 }
 
@@ -94,6 +106,17 @@ app.put("/api/admin/brand-settings", async (req, res) => {
       "bannerSubtitle",
       "bannerLink",
       "bannerBackgroundColor",
+      "footerTitle",
+      "footerDescription",
+      "footerCopyright",
+      "footerBackgroundColor",
+      "footerTextColor",
+      "footerLinkOneLabel",
+      "footerLinkOneUrl",
+      "footerLinkTwoLabel",
+      "footerLinkTwoUrl",
+      "footerLinkThreeLabel",
+      "footerLinkThreeUrl",
     ];
 
     for (const field of allowedFields) {
@@ -104,6 +127,10 @@ app.put("/api/admin/brand-settings", async (req, res) => {
 
     if (typeof req.body.bannerEnabled === "boolean") {
       settings.bannerEnabled = req.body.bannerEnabled;
+    }
+
+    if (typeof req.body.footerEnabled === "boolean") {
+      settings.footerEnabled = req.body.footerEnabled;
     }
 
     await settings.save();

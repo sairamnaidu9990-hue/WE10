@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
+import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import MainNavbar from "../../components/MainNavbar";
 
@@ -58,6 +59,7 @@ export default function UserDashboardPage() {
           )}
         </div>
       </section>
+      <Footer />
     </main>
   );
 }

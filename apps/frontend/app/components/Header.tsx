@@ -21,6 +21,18 @@ type BrandSettings = {
   bannerSubtitle: string;
   bannerLink: string;
   bannerBackgroundColor: string;
+  footerEnabled: boolean;
+  footerTitle: string;
+  footerDescription: string;
+  footerCopyright: string;
+  footerBackgroundColor: string;
+  footerTextColor: string;
+  footerLinkOneLabel: string;
+  footerLinkOneUrl: string;
+  footerLinkTwoLabel: string;
+  footerLinkTwoUrl: string;
+  footerLinkThreeLabel: string;
+  footerLinkThreeUrl: string;
 };
 
 type AuthMode = "login" | "register";
@@ -50,6 +62,18 @@ const defaultSettings: BrandSettings = {
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
   bannerBackgroundColor: "#17202a",
+  footerEnabled: true,
+  footerTitle: "WEB10",
+  footerDescription: "Platform WEB10 siap melayani kebutuhan digital kamu.",
+  footerCopyright: "© 2026 WEB10. All rights reserved.",
+  footerBackgroundColor: "#101115",
+  footerTextColor: "#ffffff",
+  footerLinkOneLabel: "Home",
+  footerLinkOneUrl: "/",
+  footerLinkTwoLabel: "Artikel",
+  footerLinkTwoUrl: "#",
+  footerLinkThreeLabel: "Cek Transaksi",
+  footerLinkThreeUrl: "#",
 };
 
 export function useBrandSettings() {

@@ -82,6 +82,65 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "#17202a",
       trim: true,
     },
+    footerEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    footerTitle: {
+      type: String,
+      default: "WEB10",
+      trim: true,
+    },
+    footerDescription: {
+      type: String,
+      default: "Platform WEB10 siap melayani kebutuhan digital kamu.",
+      trim: true,
+    },
+    footerCopyright: {
+      type: String,
+      default: "© 2026 WEB10. All rights reserved.",
+      trim: true,
+    },
+    footerBackgroundColor: {
+      type: String,
+      default: "#101115",
+      trim: true,
+    },
+    footerTextColor: {
+      type: String,
+      default: "#ffffff",
+      trim: true,
+    },
+    footerLinkOneLabel: {
+      type: String,
+      default: "Home",
+      trim: true,
+    },
+    footerLinkOneUrl: {
+      type: String,
+      default: "/",
+      trim: true,
+    },
+    footerLinkTwoLabel: {
+      type: String,
+      default: "Artikel",
+      trim: true,
+    },
+    footerLinkTwoUrl: {
+      type: String,
+      default: "#",
+      trim: true,
+    },
+    footerLinkThreeLabel: {
+      type: String,
+      default: "Cek Transaksi",
+      trim: true,
+    },
+    footerLinkThreeUrl: {
+      type: String,
+      default: "#",
+      trim: true,
+    },
   },
   {
     timestamps: true,

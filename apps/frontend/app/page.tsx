@@ -1,6 +1,7 @@
 "use client";
 
 import Header, { BrandBanner, useBrandSettings } from "./components/Header";
+import Footer from "./components/Footer";
 import MainNavbar from "./components/MainNavbar";
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <Footer />
     </main>
   );
 }

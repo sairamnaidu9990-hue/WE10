@@ -20,15 +20,29 @@ type BrandSettings = {
   bannerSubtitle: string;
   bannerLink: string;
   bannerBackgroundColor: string;
+  footerEnabled: boolean;
+  footerTitle: string;
+  footerDescription: string;
+  footerCopyright: string;
+  footerBackgroundColor: string;
+  footerTextColor: string;
+  footerLinkOneLabel: string;
+  footerLinkOneUrl: string;
+  footerLinkTwoLabel: string;
+  footerLinkTwoUrl: string;
+  footerLinkThreeLabel: string;
+  footerLinkThreeUrl: string;
 };
 
-type BrandTextField = Exclude<keyof BrandSettings, "bannerEnabled">;
+type BrandTextField = Exclude<keyof BrandSettings, "bannerEnabled" | "footerEnabled">;
 type BrandColorField =
   | "headerBackgroundColor"
   | "headerTextColor"
   | "headerAccentColor"
   | "frontendBackgroundColor"
-  | "bannerBackgroundColor";
+  | "bannerBackgroundColor"
+  | "footerBackgroundColor"
+  | "footerTextColor";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const defaultSettings: BrandSettings = {
@@ -49,6 +63,18 @@ const defaultSettings: BrandSettings = {
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
   bannerBackgroundColor: "#17202a",
+  footerEnabled: true,
+  footerTitle: "WEB10",
+  footerDescription: "Platform WEB10 siap melayani kebutuhan digital kamu.",
+  footerCopyright: "© 2026 WEB10. All rights reserved.",
+  footerBackgroundColor: "#101115",
+  footerTextColor: "#ffffff",
+  footerLinkOneLabel: "Home",
+  footerLinkOneUrl: "/",
+  footerLinkTwoLabel: "Artikel",
+  footerLinkTwoUrl: "#",
+  footerLinkThreeLabel: "Cek Transaksi",
+  footerLinkThreeUrl: "#",
 };
 
 export default function SettingsPage() {
@@ -362,6 +388,137 @@ export default function SettingsPage() {
                   {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
                 </p>
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#18191e] p-5">
+            <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Footer Frontend</h2>
+                <p className="mt-1 text-sm text-[#a1a8b3]">
+                  Footer tampil di bagian bawah halaman frontend dan dashboard user.
+                </p>
+              </div>
+              <label className="flex items-center gap-3 text-sm font-semibold text-[#d5d8df]">
+                <input
+                  checked={settings.footerEnabled}
+                  onChange={(event) => updateBooleanField("footerEnabled", event.target.checked)}
+                  className="h-4 w-4 accent-white"
+                  type="checkbox"
+                />
+                Aktifkan footer
+              </label>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Judul Footer</span>
+                <input
+                  value={settings.footerTitle}
+                  onChange={(event) => updateField("footerTitle", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="WEB10"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Copyright</span>
+                <input
+                  value={settings.footerCopyright}
+                  onChange={(event) => updateField("footerCopyright", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="© 2026 WEB10. All rights reserved."
+                />
+              </label>
+            </div>
+
+            <label className="mt-4 block">
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Deskripsi Footer</span>
+              <input
+                value={settings.footerDescription}
+                onChange={(event) => updateField("footerDescription", event.target.value)}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                placeholder="Platform WEB10 siap melayani kebutuhan digital kamu."
+              />
+            </label>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {([
+                ["footerBackgroundColor", "Warna Background Footer"],
+                ["footerTextColor", "Warna Text Footer"],
+              ] as Array<[BrandColorField, string]>).map(([field, label]) => (
+                <label key={field} className="block">
+                  <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">{label}</span>
+                  <div className="flex h-12 overflow-hidden rounded-xl border border-white/10 bg-[#2a2b31]">
+                    <input
+                      value={settings[field]}
+                      onChange={(event) => updateField(field, event.target.value)}
+                      className="h-full w-14 border-0 bg-transparent p-1"
+                      type="color"
+                    />
+                    <input
+                      value={settings[field]}
+                      onChange={(event) => updateField(field, event.target.value)}
+                      className="min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
+                    />
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {([
+                ["footerLinkOneLabel", "footerLinkOneUrl", "Link 1"],
+                ["footerLinkTwoLabel", "footerLinkTwoUrl", "Link 2"],
+                ["footerLinkThreeLabel", "footerLinkThreeUrl", "Link 3"],
+              ] as Array<[BrandTextField, BrandTextField, string]>).map(([labelField, urlField, label]) => (
+                <div key={label} className="grid gap-3 rounded-2xl border border-white/10 p-4">
+                  <p className="text-sm font-bold text-[#d5d8df]">{label}</p>
+                  <input
+                    value={settings[labelField]}
+                    onChange={(event) => updateField(labelField, event.target.value)}
+                    className="h-11 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
+                    placeholder="Label"
+                  />
+                  <input
+                    value={settings[urlField]}
+                    onChange={(event) => updateField(urlField, event.target.value)}
+                    className="h-11 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
+                    placeholder="URL"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-5 rounded-2xl border p-5"
+              style={{
+                backgroundColor: settings.footerBackgroundColor,
+                borderColor: settings.headerAccentColor,
+                color: settings.footerTextColor,
+              }}
+            >
+              <p className="text-sm opacity-70">Preview Footer</p>
+              <div className="mt-4 grid gap-5 md:grid-cols-[1fr_auto] md:items-start">
+                <div>
+                  <strong className="text-xl">{settings.footerTitle || settings.brandName || "WEB10"}</strong>
+                  <p className="mt-2 max-w-xl text-sm leading-6 opacity-75">
+                    {settings.footerDescription || "Platform WEB10 siap melayani kebutuhan digital kamu."}
+                  </p>
+                </div>
+                <div className="grid gap-2 text-sm font-bold">
+                  {[settings.footerLinkOneLabel, settings.footerLinkTwoLabel, settings.footerLinkThreeLabel]
+                    .filter(Boolean)
+                    .map((label) => (
+                      <span key={label} className="rounded-lg border px-3 py-2" style={{ borderColor: `${settings.headerAccentColor}55` }}>
+                        {label}
+                      </span>
+                    ))}
+                </div>
+              </div>
+              <p className="mt-5 border-t pt-4 text-xs opacity-70" style={{ borderColor: `${settings.headerAccentColor}55` }}>
+                {settings.footerCopyright || `© 2026 ${settings.brandName || "WEB10"}. All rights reserved.`}
+              </p>
             </div>
           </div>
 

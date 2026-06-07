@@ -3,7 +3,7 @@
 import { ClipboardCheck, Home, Newspaper, Sparkles } from "lucide-react";
 import { useBrandSettings } from "./Header";
 
-const navItems = [
+export const navItems = [
   { label: "Home", href: "#home", icon: Home },
   { label: "Artikel", href: "#artikel", icon: Newspaper },
   { label: "Ulasan", href: "#ulasan", icon: Sparkles },
@@ -15,7 +15,7 @@ export default function MainNavbar() {
 
   return (
     <nav
-      className="border-b"
+      className="hidden border-b md:block"
       style={{
         backgroundColor: settings.headerBackgroundColor,
         borderColor: `${settings.headerAccentColor}33`,

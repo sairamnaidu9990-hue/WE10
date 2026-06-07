@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, Menu, UserPlus, X } from "lucide-react";
+import { navItems } from "./MainNavbar";
 
 type BrandSettings = {
   brandName: string;
@@ -66,6 +67,7 @@ export function useBrandSettings() {
 
 export default function Header() {
   const { settings, isLoading } = useBrandSettings();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     document.title = settings.brandName || "WEB10";
@@ -139,7 +141,110 @@ export default function Header() {
             Daftar
           </a>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className="grid h-11 w-11 place-items-center rounded-xl border md:hidden"
+          style={{ borderColor: `${settings.headerAccentColor}66` }}
+          aria-label="Buka menu"
+        >
+          <Menu size={22} />
+        </button>
       </div>
+
+      {mobileMenuOpen ? (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Tutup menu"
+          />
+          <aside
+            className="absolute left-0 top-0 flex h-full w-[82vw] max-w-sm flex-col border-r shadow-2xl"
+            style={{
+              backgroundColor: settings.headerBackgroundColor,
+              borderColor: `${settings.headerAccentColor}44`,
+              color: settings.headerTextColor,
+            }}
+          >
+            <div className="flex h-20 items-center justify-between border-b px-5" style={{ borderColor: `${settings.headerAccentColor}33` }}>
+              <div className="flex items-center gap-3">
+                {settings.logoUrl ? (
+                  <img
+                    className="h-10 w-10 rounded-lg object-cover"
+                    src={settings.logoUrl}
+                    alt={`${settings.brandName} logo`}
+                  />
+                ) : (
+                  <span
+                    className="grid h-10 w-10 place-items-center rounded-lg text-sm font-black"
+                    style={{
+                      backgroundColor: settings.headerAccentColor,
+                      color: settings.headerBackgroundColor,
+                    }}
+                  >
+                    W
+                  </span>
+                )}
+                <strong className="text-lg">{settings.brandName || "WEB10"}</strong>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="grid h-10 w-10 place-items-center rounded-xl border"
+                style={{ borderColor: `${settings.headerAccentColor}66` }}
+                aria-label="Tutup menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <nav className="flex-1 space-y-2 p-4">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <a
+                    key={item.label}
+                    className="flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-black transition hover:bg-white/10"
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Icon size={19} />
+                    {item.label}
+                  </a>
+                );
+              })}
+            </nav>
+
+            <div className="grid gap-3 border-t p-4" style={{ borderColor: `${settings.headerAccentColor}33` }}>
+              <a
+                className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
+                href="#login"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ borderColor: `${settings.headerAccentColor}66` }}
+              >
+                <LogIn size={18} />
+                Masuk
+              </a>
+              <a
+                className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold"
+                href="#register"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  backgroundColor: settings.headerAccentColor,
+                  color: settings.headerBackgroundColor,
+                }}
+              >
+                <UserPlus size={18} />
+                Daftar
+              </a>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LogIn, UserPlus } from "lucide-react";
 
 type BrandSettings = {
   brandName: string;
@@ -117,12 +118,27 @@ export default function Header() {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-6 text-sm font-semibold md:flex">
-          <a href="#">Beranda</a>
-          <a href="#">Produk</a>
-          <a href="#">Transaksi</a>
-          <a href="#">Bantuan</a>
-        </nav>
+        <div className="hidden items-center gap-3 md:flex">
+          <a
+            className="flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-bold transition hover:opacity-85"
+            href="#login"
+            style={{ borderColor: `${settings.headerAccentColor}66` }}
+          >
+            <LogIn size={18} />
+            Masuk
+          </a>
+          <a
+            className="flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold transition hover:opacity-90"
+            href="#register"
+            style={{
+              backgroundColor: settings.headerAccentColor,
+              color: settings.headerBackgroundColor,
+            }}
+          >
+            <UserPlus size={18} />
+            Daftar
+          </a>
+        </div>
       </div>
     </header>
   );

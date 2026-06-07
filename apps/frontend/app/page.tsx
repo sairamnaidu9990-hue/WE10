@@ -1,6 +1,7 @@
 "use client";
 
 import Header, { BrandBanner, useBrandSettings } from "./components/Header";
+import MainNavbar from "./components/MainNavbar";
 
 export default function Home() {
   const { settings } = useBrandSettings();
@@ -11,6 +12,7 @@ export default function Home() {
       style={{ backgroundColor: settings.frontendBackgroundColor }}
     >
       <Header />
+      <MainNavbar />
       <BrandBanner />
 
       <section className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-16 md:px-8">

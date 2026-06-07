@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogIn, Menu, UserCircle, UserPlus, X } from "lucide-react";
+import { LogIn, LogOut, Menu, UserCircle, UserPlus, X } from "lucide-react";
 import { navItems } from "./MainNavbar";
 
 type BrandSettings = {
@@ -100,6 +100,17 @@ export default function Header() {
     }
   }, []);
 
+  function handleLogout() {
+    window.localStorage.removeItem("we10_user");
+    setUser(null);
+    setAuthMode(null);
+    setMobileMenuOpen(false);
+
+    if (window.location.pathname.startsWith("/user")) {
+      window.location.href = "/";
+    }
+  }
+
   useEffect(() => {
     document.title = settings.frontendTitle || settings.brandName || "WEB10";
 
@@ -163,14 +174,26 @@ export default function Header() {
 
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
-            <a
-              className="grid h-11 w-11 place-items-center rounded-xl border"
-              href="/user/dashboard"
-              style={{ borderColor: `${settings.headerAccentColor}66` }}
-              title="Dashboard user"
-            >
-              <UserCircle size={24} />
-            </a>
+            <>
+              <a
+                className="grid h-11 w-11 place-items-center rounded-xl border"
+                href="/user/dashboard"
+                style={{ borderColor: `${settings.headerAccentColor}66` }}
+                title="Dashboard user"
+              >
+                <UserCircle size={24} />
+              </a>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="grid h-11 w-11 place-items-center rounded-xl border transition hover:opacity-85"
+                style={{ borderColor: `${settings.headerAccentColor}66` }}
+                title="Keluar"
+                aria-label="Keluar"
+              >
+                <LogOut size={21} />
+              </button>
+            </>
           ) : (
             <>
               <button
@@ -277,14 +300,25 @@ export default function Header() {
 
             <div className="grid gap-3 border-t p-4" style={{ borderColor: `${settings.headerAccentColor}33` }}>
               {user ? (
-                <a
-                  className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
-                  href="/user/dashboard"
-                  style={{ borderColor: `${settings.headerAccentColor}66` }}
-                >
-                  <UserCircle size={18} />
-                  Dashboard User
-                </a>
+                <>
+                  <a
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
+                    href="/user/dashboard"
+                    style={{ borderColor: `${settings.headerAccentColor}66` }}
+                  >
+                    <UserCircle size={18} />
+                    Dashboard User
+                  </a>
+                  <button
+                    type="button"
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
+                    onClick={handleLogout}
+                    style={{ borderColor: `${settings.headerAccentColor}66` }}
+                  >
+                    <LogOut size={18} />
+                    Keluar
+                  </button>
+                </>
               ) : (
                 <>
               <button

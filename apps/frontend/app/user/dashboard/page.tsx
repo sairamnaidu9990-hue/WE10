@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
 import Header from "../../components/Header";
 import MainNavbar from "../../components/MainNavbar";
 
@@ -19,14 +20,33 @@ export default function UserDashboardPage() {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
+  function handleLogout() {
+    window.localStorage.removeItem("we10_user");
+    window.location.href = "/";
+  }
+
   return (
     <main className="min-h-screen bg-[#f4f7fb] text-[#101115]">
       <Header />
       <MainNavbar />
       <section className="mx-auto max-w-4xl px-5 py-10 md:px-8">
         <div className="rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm">
-          <p className="text-sm font-black uppercase text-[#0e7490]">Dashboard User</p>
-          <h1 className="mt-2 text-3xl font-black">Profil Saya</h1>
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase text-[#0e7490]">Dashboard User</p>
+              <h1 className="mt-2 text-3xl font-black">Profil Saya</h1>
+            </div>
+            {user ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#d9e2ec] px-4 text-sm font-bold text-[#101115] transition hover:bg-[#f8fafc]"
+              >
+                <LogOut size={18} />
+                Keluar
+              </button>
+            ) : null}
+          </div>
           {user ? (
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <Info label="Nama" value={user.name} />

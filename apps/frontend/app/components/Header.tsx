@@ -76,6 +76,24 @@ const defaultSettings: BrandSettings = {
   footerLinkThreeUrl: "#",
 };
 
+function withAlpha(color: string, alpha: number) {
+  const hex = color.trim();
+  const shortHex = /^#([a-f\d])([a-f\d])([a-f\d])$/i.exec(hex);
+  const fullHex = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
+  if (shortHex) {
+    const [, r, g, b] = shortHex;
+    return `rgba(${parseInt(r + r, 16)}, ${parseInt(g + g, 16)}, ${parseInt(b + b, 16)}, ${alpha})`;
+  }
+
+  if (fullHex) {
+    const [, r, g, b] = fullHex;
+    return `rgba(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, ${alpha})`;
+  }
+
+  return color;
+}
+
 export function useBrandSettings() {
   const [settings, setSettings] = useState<BrandSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
@@ -167,7 +185,7 @@ export default function Header() {
 
   if (isLoading) {
     return (
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#101115] text-white shadow-sm">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#101115]/75 text-white shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 md:px-8">
           <div className="flex items-center gap-3">
             <span className="h-10 w-10 animate-pulse rounded-lg bg-white/15" />
@@ -185,9 +203,9 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b shadow-sm"
+      className="sticky top-0 z-30 border-b shadow-sm backdrop-blur-xl"
       style={{
-        backgroundColor: settings.headerBackgroundColor,
+        backgroundColor: withAlpha(settings.headerBackgroundColor, 0.74),
         borderColor: `${settings.headerAccentColor}44`,
         color: settings.headerTextColor,
       }}

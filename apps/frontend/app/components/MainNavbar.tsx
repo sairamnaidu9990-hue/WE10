@@ -10,12 +10,30 @@ export const navItems = [
   { label: "Cek Transaksi", href: "#cek-transaksi", icon: ClipboardCheck },
 ];
 
+function withAlpha(color: string, alpha: number) {
+  const hex = color.trim();
+  const shortHex = /^#([a-f\d])([a-f\d])([a-f\d])$/i.exec(hex);
+  const fullHex = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
+  if (shortHex) {
+    const [, r, g, b] = shortHex;
+    return `rgba(${parseInt(r + r, 16)}, ${parseInt(g + g, 16)}, ${parseInt(b + b, 16)}, ${alpha})`;
+  }
+
+  if (fullHex) {
+    const [, r, g, b] = fullHex;
+    return `rgba(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, ${alpha})`;
+  }
+
+  return color;
+}
+
 export default function MainNavbar() {
   const { settings, isLoading } = useBrandSettings();
 
   if (isLoading) {
     return (
-      <nav className="hidden border-b border-white/10 bg-[#101115] md:block">
+      <nav className="sticky top-20 z-20 hidden border-b border-white/10 bg-[#101115]/75 backdrop-blur-xl md:block">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-3 md:px-6">
           <span className="h-5 w-20 animate-pulse rounded bg-white/15" />
           <span className="h-5 w-24 animate-pulse rounded bg-white/15" />
@@ -28,9 +46,9 @@ export default function MainNavbar() {
 
   return (
     <nav
-      className="hidden border-b md:block"
+      className="sticky top-20 z-20 hidden border-b backdrop-blur-xl md:block"
       style={{
-        backgroundColor: settings.headerBackgroundColor,
+        backgroundColor: withAlpha(settings.headerBackgroundColor, 0.72),
         borderColor: `${settings.headerAccentColor}33`,
         color: settings.headerTextColor,
       }}

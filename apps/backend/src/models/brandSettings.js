@@ -37,6 +37,11 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "#38bdf8",
       trim: true,
     },
+    frontendBackgroundColor: {
+      type: String,
+      default: "#f4f7fb",
+      trim: true,
+    },
     bannerEnabled: {
       type: Boolean,
       default: true,

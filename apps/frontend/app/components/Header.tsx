@@ -10,6 +10,7 @@ type BrandSettings = {
   headerBackgroundColor: string;
   headerTextColor: string;
   headerAccentColor: string;
+  frontendBackgroundColor: string;
   bannerEnabled: boolean;
   bannerImageUrl: string;
   bannerTitle: string;
@@ -27,6 +28,7 @@ const defaultSettings: BrandSettings = {
   headerBackgroundColor: "#101115",
   headerTextColor: "#ffffff",
   headerAccentColor: "#38bdf8",
+  frontendBackgroundColor: "#f4f7fb",
   bannerEnabled: true,
   bannerImageUrl: "",
   bannerTitle: "Selamat datang di WEB10",

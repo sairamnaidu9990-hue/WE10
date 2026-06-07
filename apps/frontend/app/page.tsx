@@ -1,8 +1,15 @@
-import Header, { BrandBanner } from "./components/Header";
+"use client";
+
+import Header, { BrandBanner, useBrandSettings } from "./components/Header";
 
 export default function Home() {
+  const { settings } = useBrandSettings();
+
   return (
-    <main className="min-h-screen bg-[#f4f7fb] text-[#101115]">
+    <main
+      className="min-h-screen text-[#101115]"
+      style={{ backgroundColor: settings.frontendBackgroundColor }}
+    >
       <Header />
       <BrandBanner />
 

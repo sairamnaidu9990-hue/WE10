@@ -11,6 +11,7 @@ type BrandSettings = {
   headerBackgroundColor: string;
   headerTextColor: string;
   headerAccentColor: string;
+  frontendBackgroundColor: string;
   bannerEnabled: boolean;
   bannerImageUrl: string;
   bannerTitle: string;
@@ -24,6 +25,7 @@ type BrandColorField =
   | "headerBackgroundColor"
   | "headerTextColor"
   | "headerAccentColor"
+  | "frontendBackgroundColor"
   | "bannerBackgroundColor";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -35,6 +37,7 @@ const defaultSettings: BrandSettings = {
   headerBackgroundColor: "#101115",
   headerTextColor: "#ffffff",
   headerAccentColor: "#38bdf8",
+  frontendBackgroundColor: "#f4f7fb",
   bannerEnabled: true,
   bannerImageUrl: "",
   bannerTitle: "Selamat datang di WEB10",
@@ -170,6 +173,7 @@ export default function SettingsPage() {
               ["headerBackgroundColor", "Warna Background Header"],
               ["headerTextColor", "Warna Text Header"],
               ["headerAccentColor", "Warna Accent Header"],
+              ["frontendBackgroundColor", "Warna Background Frontend"],
             ] as Array<[BrandColorField, string]>).map(([field, label]) => (
               <label key={field} className="block">
                 <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">{label}</span>

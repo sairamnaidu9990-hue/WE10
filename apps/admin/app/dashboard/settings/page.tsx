@@ -16,6 +16,7 @@ type BrandSettings = {
   frontendBackgroundColor: string;
   bannerEnabled: boolean;
   bannerImageUrl: string;
+  bannerImageFit: string;
   bannerTitle: string;
   bannerSubtitle: string;
   bannerLink: string;
@@ -61,6 +62,7 @@ const defaultSettings: BrandSettings = {
   frontendBackgroundColor: "#f4f7fb",
   bannerEnabled: true,
   bannerImageUrl: "",
+  bannerImageFit: "contain",
   bannerTitle: "Selamat datang di WEB10",
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
@@ -381,15 +383,29 @@ export default function SettingsPage() {
               </label>
             </div>
 
-            <label className="mt-4 block">
-              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Image URL Banner</span>
-              <input
-                value={settings.bannerImageUrl}
-                onChange={(event) => updateField("bannerImageUrl", event.target.value)}
-                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
-                placeholder="https://.../banner.jpg"
-              />
-            </label>
+            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_220px]">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Image URL Banner</span>
+                <input
+                  value={settings.bannerImageUrl}
+                  onChange={(event) => updateField("bannerImageUrl", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="https://.../banner.jpg"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Mode Gambar</span>
+                <select
+                  value={settings.bannerImageFit}
+                  onChange={(event) => updateField("bannerImageFit", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                >
+                  <option value="contain">Contain - gambar full</option>
+                  <option value="cover">Cover - memenuhi area</option>
+                </select>
+              </label>
+            </div>
 
             <div
               className="relative mt-5 min-h-[180px] overflow-hidden rounded-2xl border"
@@ -402,9 +418,10 @@ export default function SettingsPage() {
             >
               {settings.bannerImageUrl ? (
                 <img
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full"
                   src={settings.bannerImageUrl}
                   alt=""
+                  style={{ objectFit: settings.bannerImageFit === "cover" ? "cover" : "contain" }}
                 />
               ) : null}
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />

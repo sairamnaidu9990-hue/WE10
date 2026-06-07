@@ -18,6 +18,7 @@ type BrandSettings = {
   frontendBackgroundColor: string;
   bannerEnabled: boolean;
   bannerImageUrl: string;
+  bannerImageFit: string;
   bannerTitle: string;
   bannerSubtitle: string;
   bannerLink: string;
@@ -61,6 +62,7 @@ const defaultSettings: BrandSettings = {
   frontendBackgroundColor: "#f4f7fb",
   bannerEnabled: true,
   bannerImageUrl: "",
+  bannerImageFit: "contain",
   bannerTitle: "Selamat datang di WEB10",
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
@@ -573,9 +575,10 @@ export function BrandBanner() {
       >
         {settings.bannerImageUrl ? (
           <img
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full"
             src={settings.bannerImageUrl}
             alt={settings.bannerTitle || "WEB10 banner"}
+            style={{ objectFit: settings.bannerImageFit === "cover" ? "cover" : "contain" }}
           />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />

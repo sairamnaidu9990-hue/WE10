@@ -62,6 +62,12 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    bannerImageFit: {
+      type: String,
+      enum: ["cover", "contain"],
+      default: "contain",
+      trim: true,
+    },
     bannerTitle: {
       type: String,
       default: "Selamat datang di WEB10",

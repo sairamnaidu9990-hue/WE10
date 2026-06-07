@@ -217,7 +217,17 @@ export default function AdminManagementPage() {
 
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#202126]">
           {loading ? (
-            <p className="p-5 text-sm text-[#a1a8b3]">Memuat data admin...</p>
+            <div className="space-y-4 p-5">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="grid gap-4 md:grid-cols-[1fr_160px_120px_260px_160px]">
+                  <div className="h-12 animate-pulse rounded-xl bg-white/10" />
+                  <div className="h-12 animate-pulse rounded-xl bg-white/10" />
+                  <div className="h-12 animate-pulse rounded-xl bg-white/10" />
+                  <div className="h-12 animate-pulse rounded-xl bg-white/10" />
+                  <div className="h-12 animate-pulse rounded-xl bg-white/10" />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[960px] text-left text-sm">

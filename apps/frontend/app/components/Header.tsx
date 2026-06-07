@@ -37,6 +37,7 @@ const defaultSettings: BrandSettings = {
 
 export function useBrandSettings() {
   const [settings, setSettings] = useState<BrandSettings>(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadBrandSettings() {
@@ -49,17 +50,19 @@ export function useBrandSettings() {
         }
       } catch {
         setSettings(defaultSettings);
+      } finally {
+        setIsLoading(false);
       }
     }
 
     loadBrandSettings();
   }, []);
 
-  return settings;
+  return { settings, isLoading };
 }
 
 export default function Header() {
-  const settings = useBrandSettings();
+  const { settings, isLoading } = useBrandSettings();
 
   useEffect(() => {
     document.title = settings.brandName || "WEB10";
@@ -88,7 +91,9 @@ export default function Header() {
     >
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 md:px-8">
         <a className="flex items-center gap-3" href={settings.domain || "/"}>
-          {settings.logoUrl ? (
+          {isLoading ? (
+            <span className="h-10 w-10 animate-pulse rounded-lg bg-white/15" />
+          ) : settings.logoUrl ? (
             <img
               className="h-10 w-10 rounded-lg object-cover"
               src={settings.logoUrl}
@@ -105,7 +110,9 @@ export default function Header() {
               W
             </span>
           )}
-          <span className="text-xl font-black">{settings.brandName || "WEB10"}</span>
+          <span className={`text-xl font-black ${isLoading ? "h-6 w-24 animate-pulse rounded bg-white/15 text-transparent" : ""}`}>
+            {settings.brandName || "WEB10"}
+          </span>
         </a>
 
         <nav className="hidden items-center gap-6 text-sm font-semibold md:flex">
@@ -120,10 +127,20 @@ export default function Header() {
 }
 
 export function BrandBanner() {
-  const settings = useBrandSettings();
+  const { settings, isLoading } = useBrandSettings();
 
   if (!settings.bannerEnabled) {
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <section className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
+        <div className="min-h-[180px] overflow-hidden rounded-2xl border border-[#d9e2ec] bg-[#e6edf5] md:min-h-[260px]">
+          <div className="h-full min-h-[180px] animate-pulse bg-gradient-to-r from-[#d9e2ec] via-[#f4f7fb] to-[#d9e2ec] md:min-h-[260px]" />
+        </div>
+      </section>
+    );
   }
 
   const banner = (

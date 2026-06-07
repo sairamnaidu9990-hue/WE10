@@ -60,7 +60,7 @@ export default function MainNavbar() {
           return (
             <a
               key={item.label}
-              className="flex h-full shrink-0 items-center gap-2 border-b-2 border-transparent px-3 text-sm font-black transition hover:opacity-85 md:px-4"
+              className="flex h-full shrink-0 items-center gap-2 border-b-2 border-transparent px-3 text-xs font-semibold transition hover:opacity-85 md:px-4"
               href={item.href}
               style={{
                 borderBottomColor: item.label === "Home" ? settings.headerAccentColor : "transparent",

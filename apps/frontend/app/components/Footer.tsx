@@ -69,7 +69,7 @@ export default function Footer() {
                 W
               </span>
             )}
-            <strong className="text-xl font-black">
+            <strong className="text-lg font-bold">
               {settings.footerTitle || settings.brandName || "WEB10"}
             </strong>
           </div>
@@ -82,7 +82,7 @@ export default function Footer() {
           {links.map((link) => (
             <a
               key={`${link.label}-${link.url}`}
-              className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-sm font-bold transition hover:bg-white/10"
+              className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-xs font-semibold transition hover:bg-white/10"
               href={link.url}
               style={{ borderColor: `${settings.headerAccentColor}33` }}
             >

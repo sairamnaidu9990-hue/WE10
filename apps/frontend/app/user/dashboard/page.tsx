@@ -34,8 +34,8 @@ export default function UserDashboardPage() {
         <div className="rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <p className="text-sm font-black uppercase text-[#0e7490]">Dashboard User</p>
-              <h1 className="mt-2 text-3xl font-black">Profil Saya</h1>
+              <p className="text-xs font-bold uppercase text-[#0e7490]">Dashboard User</p>
+              <h1 className="mt-2 text-2xl font-bold">Profil Saya</h1>
             </div>
             {user ? (
               <button
@@ -68,7 +68,7 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-[#d9e2ec] bg-[#f8fafc] p-4">
       <p className="text-sm text-[#5d6673]">{label}</p>
-      <p className="mt-2 font-bold">{value}</p>
+      <p className="mt-2 text-sm font-semibold">{value}</p>
     </div>
   );
 }

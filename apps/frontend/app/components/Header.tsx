@@ -231,7 +231,7 @@ export default function Header() {
               W
             </span>
           )}
-          <span className={`text-xl font-black ${isLoading ? "h-6 w-24 animate-pulse rounded bg-white/15 text-transparent" : ""}`}>
+          <span className={`text-lg font-bold ${isLoading ? "h-6 w-24 animate-pulse rounded bg-white/15 text-transparent" : ""}`}>
             {settings.brandName || "WEB10"}
           </span>
         </a>
@@ -331,7 +331,7 @@ export default function Header() {
                     W
                   </span>
                 )}
-                <strong className="text-lg">{settings.brandName || "WEB10"}</strong>
+                <strong className="text-base">{settings.brandName || "WEB10"}</strong>
               </div>
               <button
                 type="button"
@@ -351,7 +351,7 @@ export default function Header() {
                 return (
                   <a
                     key={item.label}
-                    className="flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-black transition hover:bg-white/10"
+                    className="flex h-12 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition hover:bg-white/10"
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -496,7 +496,7 @@ function AuthModal({
       >
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-black">{isRegister ? "Daftar" : "Masuk"}</h2>
+            <h2 className="text-xl font-bold">{isRegister ? "Daftar" : "Masuk"}</h2>
             <p className="mt-1 text-sm text-[#a1a8b3]">
               {isRegister ? "Buat akun WEB10 baru." : "Masuk ke akun WEB10."}
             </p>
@@ -571,13 +571,13 @@ export function BrandBanner() {
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
         <div className="relative flex min-h-[180px] max-w-2xl flex-col justify-end p-6 md:min-h-[260px] md:p-8">
-          <p className="text-sm font-black uppercase" style={{ color: settings.headerAccentColor }}>
+          <p className="text-xs font-bold uppercase" style={{ color: settings.headerAccentColor }}>
             {settings.brandName || "WEB10"}
           </p>
-          <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+          <h2 className="mt-3 text-2xl font-bold leading-tight md:text-4xl">
             {settings.bannerTitle || "Selamat datang di WEB10"}
           </h2>
-          <p className="mt-3 max-w-xl text-base leading-7 opacity-80">
+          <p className="mt-3 max-w-xl text-sm leading-6 opacity-80">
             {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
           </p>
         </div>

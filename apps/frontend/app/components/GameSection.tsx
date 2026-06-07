@@ -58,12 +58,12 @@ export default function GameSection() {
                     <Package size={28} className="text-[#0e7490]" />
                   )}
                 </div>
-                <h2 className="mt-5 text-xl font-black text-[#101115]">{game.name}</h2>
+                <h2 className="mt-5 text-base font-bold text-[#101115]">{game.name}</h2>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#5d6673]">
                   {game.shortDescription || "Game sederhana berbasis web siap dimainkan."}
                 </p>
               </div>
-              <span className="mt-5 flex items-center gap-2 text-sm font-black text-[#0e7490]">
+              <span className="mt-5 flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]">
                 Mainkan
                 <ArrowRight size={17} className="transition group-hover:translate-x-1" />
               </span>

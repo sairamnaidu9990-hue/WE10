@@ -53,7 +53,7 @@ export default function GameDetailPage() {
       <MainNavbar />
 
       <section className="mx-auto max-w-5xl px-5 py-10 md:px-8">
-        <a className="inline-flex items-center gap-2 text-sm font-black text-[#0e7490]" href="/">
+        <a className="inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]" href="/">
           <ArrowLeft size={17} />
           Kembali
         </a>
@@ -76,8 +76,8 @@ export default function GameDetailPage() {
                 <Package size={36} className="text-[#0e7490]" />
               )}
             </div>
-            <h1 className="mt-6 text-4xl font-black md:text-5xl">{game.name}</h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-[#5d6673]">
+            <h1 className="mt-6 text-2xl font-bold md:text-4xl">{game.name}</h1>
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-[#5d6673]">
               {game.shortDescription || "Game ini belum memiliki penjelasan."}
             </p>
           </article>

@@ -258,6 +258,16 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
+app.get("/api/games", async (req, res) => {
+  try {
+    const games = await Product.find().sort({ createdAt: -1 });
+    return res.json({ games: games.map(formatProduct) });
+  } catch (error) {
+    console.error("Failed to load games:", error.message);
+    return res.status(500).json({ message: "Gagal memuat game." });
+  }
+});
+
 app.get("/api/products/:slug", async (req, res) => {
   try {
     const product = await Product.findOne({ slug: req.params.slug });
@@ -270,6 +280,18 @@ app.get("/api/products/:slug", async (req, res) => {
   }
 });
 
+app.get("/api/games/:slug", async (req, res) => {
+  try {
+    const game = await Product.findOne({ slug: req.params.slug });
+    if (!game) return res.status(404).json({ message: "Game tidak ditemukan." });
+
+    return res.json({ game: formatProduct(game) });
+  } catch (error) {
+    console.error("Failed to load game:", error.message);
+    return res.status(500).json({ message: "Gagal memuat detail game." });
+  }
+});
+
 app.get("/api/admin/products", async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -277,6 +299,16 @@ app.get("/api/admin/products", async (req, res) => {
   } catch (error) {
     console.error("Failed to load admin products:", error.message);
     return res.status(500).json({ message: "Gagal memuat produk." });
+  }
+});
+
+app.get("/api/admin/games", async (req, res) => {
+  try {
+    const games = await Product.find().sort({ createdAt: -1 });
+    return res.json({ games: games.map(formatProduct) });
+  } catch (error) {
+    console.error("Failed to load admin games:", error.message);
+    return res.status(500).json({ message: "Gagal memuat game." });
   }
 });
 
@@ -304,6 +336,33 @@ app.post("/api/admin/products", async (req, res) => {
   } catch (error) {
     console.error("Failed to create product:", error.message);
     return res.status(500).json({ message: "Gagal menambahkan produk." });
+  }
+});
+
+app.post("/api/admin/games", async (req, res) => {
+  try {
+    const name = String(req.body.name || "").trim();
+    const logoUrl = String(req.body.logoUrl || "").trim();
+    const shortDescription = String(req.body.shortDescription || "").trim();
+
+    if (!name) {
+      return res.status(400).json({ message: "Nama game wajib diisi." });
+    }
+
+    const game = await Product.create({
+      name,
+      slug: await makeUniqueProductSlug(name),
+      logoUrl,
+      shortDescription,
+    });
+
+    return res.status(201).json({
+      message: "Game berhasil ditambahkan.",
+      game: formatProduct(game),
+    });
+  } catch (error) {
+    console.error("Failed to create game:", error.message);
+    return res.status(500).json({ message: "Gagal menambahkan game." });
   }
 });
 
@@ -337,6 +396,39 @@ app.patch("/api/admin/products/:id", async (req, res) => {
   } catch (error) {
     console.error("Failed to update product:", error.message);
     return res.status(500).json({ message: "Gagal menyimpan produk." });
+  }
+});
+
+app.patch("/api/admin/games/:id", async (req, res) => {
+  try {
+    const updates = {};
+
+    if (typeof req.body.name === "string") {
+      updates.name = req.body.name.trim();
+    }
+    if (typeof req.body.logoUrl === "string") {
+      updates.logoUrl = req.body.logoUrl.trim();
+    }
+    if (typeof req.body.shortDescription === "string") {
+      updates.shortDescription = req.body.shortDescription.trim();
+    }
+
+    if (!updates.name) {
+      return res.status(400).json({ message: "Nama game wajib diisi." });
+    }
+
+    updates.slug = await makeUniqueProductSlug(updates.name, req.params.id);
+
+    const game = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
+    if (!game) return res.status(404).json({ message: "Game tidak ditemukan." });
+
+    return res.json({
+      message: "Game berhasil disimpan.",
+      game: formatProduct(game),
+    });
+  } catch (error) {
+    console.error("Failed to update game:", error.message);
+    return res.status(500).json({ message: "Gagal menyimpan game." });
   }
 });
 
@@ -511,6 +603,18 @@ app.patch("/api/admin/members/:id/status", async (req, res) => {
   } catch (error) {
     console.error("Failed to update user status:", error.message);
     return res.status(500).json({ message: "Gagal mengubah status user." });
+  }
+});
+
+app.delete("/api/admin/games/:id", async (req, res) => {
+  try {
+    const game = await Product.findByIdAndDelete(req.params.id);
+    if (!game) return res.status(404).json({ message: "Game tidak ditemukan." });
+
+    return res.json({ message: "Game berhasil dihapus." });
+  } catch (error) {
+    console.error("Failed to delete game:", error.message);
+    return res.status(500).json({ message: "Gagal menghapus game." });
   }
 });
 

@@ -7,7 +7,7 @@ import Footer from "../../components/Footer";
 import Header, { useBrandSettings } from "../../components/Header";
 import MainNavbar from "../../components/MainNavbar";
 
-type Product = {
+type Game = {
   id: string;
   name: string;
   slug: string;
@@ -17,30 +17,30 @@ type Product = {
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export default function ProductDetailPage() {
+export default function GameDetailPage() {
   const params = useParams<{ slug: string }>();
   const { settings } = useBrandSettings();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    async function loadProduct() {
+    async function loadGame() {
       try {
-        const response = await fetch(`${apiUrl}/api/products/${params.slug}`);
+        const response = await fetch(`${apiUrl}/api/games/${params.slug}`);
         const data = await response.json();
 
-        if (!response.ok) throw new Error(data.message || "Produk tidak ditemukan.");
-        setProduct(data.product);
+        if (!response.ok) throw new Error(data.message || "Game tidak ditemukan.");
+        setGame(data.game);
       } catch (error) {
-        setMessage(error instanceof Error ? error.message : "Produk tidak ditemukan.");
+        setMessage(error instanceof Error ? error.message : "Game tidak ditemukan.");
       } finally {
         setLoading(false);
       }
     }
 
     if (params.slug) {
-      loadProduct();
+      loadGame();
     }
   }, [params.slug]);
 
@@ -67,18 +67,18 @@ export default function ProductDetailPage() {
               <div className="h-5 w-4/5 animate-pulse rounded bg-[#d9e2ec]" />
             </div>
           </div>
-        ) : product ? (
+        ) : game ? (
           <article className="mt-8 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm md:p-8">
             <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-2xl border border-[#d9e2ec] bg-[#f8fafc]">
-              {product.logoUrl ? (
-                <img className="h-full w-full object-cover" src={product.logoUrl} alt={`${product.name} logo`} />
+              {game.logoUrl ? (
+                <img className="h-full w-full object-cover" src={game.logoUrl} alt={`${game.name} logo`} />
               ) : (
                 <Package size={36} className="text-[#0e7490]" />
               )}
             </div>
-            <h1 className="mt-6 text-4xl font-black md:text-5xl">{product.name}</h1>
+            <h1 className="mt-6 text-4xl font-black md:text-5xl">{game.name}</h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-[#5d6673]">
-              {product.shortDescription || "Detail produk belum memiliki penjelasan."}
+              {game.shortDescription || "Game ini belum memiliki penjelasan."}
             </p>
           </article>
         ) : (

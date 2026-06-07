@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { ExternalLink, Plus, Save, Trash2 } from "lucide-react";
 import AdminShell from "../../components/AdminShell";
 
-type Product = {
+type Game = {
   id: string;
   name: string;
   slug: string;
@@ -15,8 +15,8 @@ type Product = {
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
-export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function GamesPage() {
+  const [games, setGames] = useState<Game[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
@@ -25,22 +25,22 @@ export default function ProductsPage() {
     shortDescription: "",
   });
 
-  async function loadProducts() {
+  async function loadGames() {
     try {
-      const response = await fetch(`${apiUrl}/api/admin/products`);
+      const response = await fetch(`${apiUrl}/api/admin/games`);
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Gagal memuat produk.");
-      setProducts(data.products);
+      if (!response.ok) throw new Error(data.message || "Gagal memuat game.");
+      setGames(data.games);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Gagal memuat produk.");
+      setMessage(error instanceof Error ? error.message : "Gagal memuat game.");
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadProducts();
+    loadGames();
   }, []);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
@@ -48,64 +48,64 @@ export default function ProductsPage() {
     setMessage("");
 
     try {
-      const response = await fetch(`${apiUrl}/api/admin/products`, {
+      const response = await fetch(`${apiUrl}/api/admin/games`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Gagal menambahkan produk.");
-      setProducts((current) => [data.product, ...current]);
+      if (!response.ok) throw new Error(data.message || "Gagal menambahkan game.");
+      setGames((current) => [data.game, ...current]);
       setForm({ name: "", logoUrl: "", shortDescription: "" });
       setMessage(data.message);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Gagal menambahkan produk.");
+      setMessage(error instanceof Error ? error.message : "Gagal menambahkan game.");
     }
   }
 
-  async function saveProduct(product: Product) {
+  async function saveGame(game: Game) {
     setMessage("");
 
     try {
-      const response = await fetch(`${apiUrl}/api/admin/products/${product.id}`, {
+      const response = await fetch(`${apiUrl}/api/admin/games/${game.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
+        body: JSON.stringify(game),
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Gagal menyimpan produk.");
-      setProducts((current) =>
-        current.map((item) => (item.id === product.id ? data.product : item)),
+      if (!response.ok) throw new Error(data.message || "Gagal menyimpan game.");
+      setGames((current) =>
+        current.map((item) => (item.id === game.id ? data.game : item)),
       );
       setMessage(data.message);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Gagal menyimpan produk.");
+      setMessage(error instanceof Error ? error.message : "Gagal menyimpan game.");
     }
   }
 
-  async function deleteProduct(productId: string) {
+  async function deleteGame(gameId: string) {
     setMessage("");
 
     try {
-      const response = await fetch(`${apiUrl}/api/admin/products/${productId}`, {
+      const response = await fetch(`${apiUrl}/api/admin/games/${gameId}`, {
         method: "DELETE",
       });
       const data = await response.json();
 
-      if (!response.ok) throw new Error(data.message || "Gagal menghapus produk.");
-      setProducts((current) => current.filter((product) => product.id !== productId));
+      if (!response.ok) throw new Error(data.message || "Gagal menghapus game.");
+      setGames((current) => current.filter((game) => game.id !== gameId));
       setMessage(data.message);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Gagal menghapus produk.");
+      setMessage(error instanceof Error ? error.message : "Gagal menghapus game.");
     }
   }
 
-  function updateProduct(productId: string, field: keyof Product, value: string) {
-    setProducts((current) =>
-      current.map((product) =>
-        product.id === productId ? { ...product, [field]: value } : product,
+  function updateGame(gameId: string, field: keyof Game, value: string) {
+    setGames((current) =>
+      current.map((game) =>
+        game.id === gameId ? { ...game, [field]: value } : game,
       ),
     );
   }
@@ -115,9 +115,9 @@ export default function ProductsPage() {
       <section className="mx-auto max-w-6xl px-5 py-8 md:px-8">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase text-[#a1a8b3]">WE10 Admin</p>
-          <h1 className="mt-2 text-3xl font-bold">Produk</h1>
+          <h1 className="mt-2 text-3xl font-bold">Game</h1>
           <p className="mt-2 text-sm text-[#a1a8b3]">
-            Atur logo, nama, dan penjelasan singkat produk yang tampil di frontend.
+            Atur logo, nama, dan penjelasan singkat game yang tampil di frontend.
           </p>
         </div>
 
@@ -125,15 +125,15 @@ export default function ProductsPage() {
           onSubmit={handleCreate}
           className="grid gap-4 rounded-2xl border border-white/10 bg-[#202126] p-5"
         >
-          <h2 className="text-xl font-bold">Tambah Produk</h2>
+          <h2 className="text-xl font-bold">Tambah Game</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <label>
-              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Nama Produk</span>
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Nama Game</span>
               <input
                 value={form.name}
                 onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                 className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
-                placeholder="Nama produk"
+                placeholder="Nama game"
                 required
               />
             </label>
@@ -153,60 +153,60 @@ export default function ProductsPage() {
               value={form.shortDescription}
               onChange={(event) => setForm((current) => ({ ...current, shortDescription: event.target.value }))}
               className="min-h-28 w-full rounded-xl border border-white/10 bg-[#2a2b31] p-4 outline-none focus:border-white/30"
-              placeholder="Tuliskan penjelasan singkat produk"
+              placeholder="Tuliskan penjelasan singkat game"
             />
           </label>
           <button className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-black md:w-fit">
             <Plus size={18} />
-            Tambah Produk
+            Tambah Game
           </button>
         </form>
 
         <div className="mt-6 rounded-2xl border border-white/10 bg-[#202126] p-5">
           <div className="mb-5 flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold">Daftar Produk</h2>
+            <h2 className="text-xl font-bold">Daftar Game</h2>
             <p className="text-sm text-[#a1d99b]" role="status">
-              {loading ? "Memuat produk..." : message}
+              {loading ? "Memuat game..." : message}
             </p>
           </div>
 
           <div className="grid gap-4">
-            {products.map((product) => (
-              <div key={product.id} className="grid gap-4 rounded-2xl border border-white/10 bg-[#18191e] p-4">
+            {games.map((game) => (
+              <div key={game.id} className="grid gap-4 rounded-2xl border border-white/10 bg-[#18191e] p-4">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start">
                   <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                    {product.logoUrl ? (
-                      <img className="h-full w-full object-cover" src={product.logoUrl} alt="" />
+                    {game.logoUrl ? (
+                      <img className="h-full w-full object-cover" src={game.logoUrl} alt="" />
                     ) : (
-                      <span className="text-2xl font-black">{product.name.charAt(0) || "P"}</span>
+                      <span className="text-2xl font-black">{game.name.charAt(0) || "G"}</span>
                     )}
                   </div>
 
                   <div className="grid flex-1 gap-3">
                     <div className="grid gap-3 md:grid-cols-2">
                       <input
-                        value={product.name}
-                        onChange={(event) => updateProduct(product.id, "name", event.target.value)}
+                        value={game.name}
+                        onChange={(event) => updateGame(game.id, "name", event.target.value)}
                         className="h-11 rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
-                        placeholder="Nama produk"
+                        placeholder="Nama game"
                       />
                       <input
-                        value={product.logoUrl}
-                        onChange={(event) => updateProduct(product.id, "logoUrl", event.target.value)}
+                        value={game.logoUrl}
+                        onChange={(event) => updateGame(game.id, "logoUrl", event.target.value)}
                         className="h-11 rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
                         placeholder="Logo URL"
                       />
                     </div>
                     <textarea
-                      value={product.shortDescription}
-                      onChange={(event) => updateProduct(product.id, "shortDescription", event.target.value)}
+                      value={game.shortDescription}
+                      onChange={(event) => updateGame(game.id, "shortDescription", event.target.value)}
                       className="min-h-24 rounded-xl border border-white/10 bg-[#2a2b31] p-4 text-sm outline-none focus:border-white/30"
                       placeholder="Penjelasan singkat"
                     />
                     <div className="flex flex-wrap gap-3">
                       <button
                         type="button"
-                        onClick={() => saveProduct(product)}
+                        onClick={() => saveGame(game)}
                         className="flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-sm font-bold text-black"
                       >
                         <Save size={16} />
@@ -214,7 +214,7 @@ export default function ProductsPage() {
                       </button>
                       <a
                         className="flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm font-bold text-[#d5d8df]"
-                        href={`${frontendUrl}/products/${product.slug}`}
+                        href={`${frontendUrl}/games/${game.slug}`}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -223,7 +223,7 @@ export default function ProductsPage() {
                       </a>
                       <button
                         type="button"
-                        onClick={() => deleteProduct(product.id)}
+                        onClick={() => deleteGame(game.id)}
                         className="flex h-10 items-center gap-2 rounded-xl border border-[#ff9c90]/30 px-4 text-sm font-bold text-[#ff9c90]"
                       >
                         <Trash2 size={16} />
@@ -235,9 +235,9 @@ export default function ProductsPage() {
               </div>
             ))}
 
-            {!loading && products.length === 0 ? (
+            {!loading && games.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-[#a1a8b3]">
-                Belum ada produk.
+                Belum ada game.
               </div>
             ) : null}
           </div>

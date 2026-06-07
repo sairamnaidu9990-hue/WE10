@@ -3,7 +3,7 @@
 import { ArrowRight, Package } from "lucide-react";
 import { useEffect, useState } from "react";
 
-type Product = {
+type Game = {
   id: string;
   name: string;
   slug: string;
@@ -13,25 +13,25 @@ type Product = {
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export default function ProductSection() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function GameSection() {
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadGames() {
       try {
-        const response = await fetch(`${apiUrl}/api/products`);
+        const response = await fetch(`${apiUrl}/api/games`);
         const data = await response.json();
 
         if (response.ok) {
-          setProducts(data.products);
+          setGames(data.games);
         }
       } finally {
         setLoading(false);
       }
     }
 
-    loadProducts();
+    loadGames();
   }, []);
 
   return (
@@ -42,25 +42,25 @@ export default function ProductSection() {
             <div key={item} className="h-44 animate-pulse rounded-2xl border border-[#d9e2ec] bg-white/70" />
           ))}
         </div>
-      ) : products.length ? (
+      ) : games.length ? (
         <div className="grid gap-4 md:grid-cols-3">
-          {products.map((product) => (
+          {games.map((game) => (
             <a
-              key={product.id}
-              href={`/products/${product.slug}`}
+              key={game.id}
+              href={`/games/${game.slug}`}
               className="group flex min-h-48 flex-col justify-between rounded-2xl border border-[#d9e2ec] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
             >
               <div>
                 <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-2xl border border-[#d9e2ec] bg-[#f8fafc]">
-                  {product.logoUrl ? (
-                    <img className="h-full w-full object-cover" src={product.logoUrl} alt={`${product.name} logo`} />
+                  {game.logoUrl ? (
+                    <img className="h-full w-full object-cover" src={game.logoUrl} alt={`${game.name} logo`} />
                   ) : (
                     <Package size={28} className="text-[#0e7490]" />
                   )}
                 </div>
-                <h2 className="mt-5 text-xl font-black text-[#101115]">{product.name}</h2>
+                <h2 className="mt-5 text-xl font-black text-[#101115]">{game.name}</h2>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#5d6673]">
-                  {product.shortDescription || "Detail produk tersedia di halaman berikutnya."}
+                  {game.shortDescription || "Game sederhana berbasis web siap dimainkan."}
                 </p>
               </div>
               <span className="mt-5 flex items-center gap-2 text-sm font-black text-[#0e7490]">
@@ -72,7 +72,7 @@ export default function ProductSection() {
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-white/70 p-8 text-center text-sm font-semibold text-[#5d6673]">
-          Produk belum tersedia.
+          Game belum tersedia.
         </div>
       )}
     </section>

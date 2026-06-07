@@ -19,7 +19,7 @@ const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
   { label: "Admin Management", href: "/dashboard/admin-management", icon: ShieldCheck },
   { label: "Pengguna", href: "/dashboard/users", icon: Users },
-  { label: "Produk", href: "/dashboard/products", icon: Package },
+  { label: "Game", href: "/dashboard/games", icon: Package },
   { label: "Transaksi", href: "/dashboard/transactions", icon: CreditCard },
   { label: "Laporan", href: "/dashboard/reports", icon: BarChart3 },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },

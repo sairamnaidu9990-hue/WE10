@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogIn, Menu, UserPlus, X } from "lucide-react";
+import { LogIn, Menu, UserCircle, UserPlus, X } from "lucide-react";
 import { navItems } from "./MainNavbar";
 
 type BrandSettings = {
@@ -21,6 +21,14 @@ type BrandSettings = {
   bannerSubtitle: string;
   bannerLink: string;
   bannerBackgroundColor: string;
+};
+
+type AuthMode = "login" | "register";
+type FrontendUser = {
+  username: string;
+  name: string;
+  phone: string;
+  email: string;
 };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -73,6 +81,24 @@ export function useBrandSettings() {
 export default function Header() {
   const { settings, isLoading } = useBrandSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const [authMessage, setAuthMessage] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [user, setUser] = useState<FrontendUser | null>(null);
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+    name: "",
+    phone: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    const storedUser = window.localStorage.getItem("we10_user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     document.title = settings.frontendTitle || settings.brandName || "WEB10";
@@ -136,17 +162,30 @@ export default function Header() {
         </a>
 
         <div className="hidden items-center gap-3 md:flex">
-          <a
+          {user ? (
+            <a
+              className="grid h-11 w-11 place-items-center rounded-xl border"
+              href="/user/dashboard"
+              style={{ borderColor: `${settings.headerAccentColor}66` }}
+              title="Dashboard user"
+            >
+              <UserCircle size={24} />
+            </a>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setAuthMode("login")}
             className="flex h-11 items-center gap-2 rounded-xl border px-4 text-sm font-bold transition hover:opacity-85"
-            href="#login"
             style={{ borderColor: `${settings.headerAccentColor}66` }}
           >
             <LogIn size={18} />
             Masuk
-          </a>
-          <a
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthMode("register")}
             className="flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-bold transition hover:opacity-90"
-            href="#register"
             style={{
               backgroundColor: settings.headerAccentColor,
               color: settings.headerBackgroundColor,
@@ -154,7 +193,9 @@ export default function Header() {
           >
             <UserPlus size={18} />
             Daftar
-          </a>
+          </button>
+            </>
+          )}
         </div>
 
         <button
@@ -235,19 +276,36 @@ export default function Header() {
             </nav>
 
             <div className="grid gap-3 border-t p-4" style={{ borderColor: `${settings.headerAccentColor}33` }}>
-              <a
+              {user ? (
+                <a
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
+                  href="/user/dashboard"
+                  style={{ borderColor: `${settings.headerAccentColor}66` }}
+                >
+                  <UserCircle size={18} />
+                  Dashboard User
+                </a>
+              ) : (
+                <>
+              <button
+                type="button"
                 className="flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-bold"
-                href="#login"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthMode("login");
+                }}
                 style={{ borderColor: `${settings.headerAccentColor}66` }}
               >
                 <LogIn size={18} />
                 Masuk
-              </a>
-              <a
+              </button>
+              <button
+                type="button"
                 className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold"
-                href="#register"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthMode("register");
+                }}
                 style={{
                   backgroundColor: settings.headerAccentColor,
                   color: settings.headerBackgroundColor,
@@ -255,12 +313,125 @@ export default function Header() {
               >
                 <UserPlus size={18} />
                 Daftar
-              </a>
+              </button>
+                </>
+              )}
             </div>
           </aside>
         </div>
       ) : null}
+
+      {authMode ? (
+        <AuthModal
+          mode={authMode}
+          form={form}
+          message={authMessage}
+          loading={authLoading}
+          onClose={() => {
+            setAuthMode(null);
+            setAuthMessage("");
+          }}
+          onSwitch={setAuthMode}
+          onChange={(field, value) => setForm((current) => ({ ...current, [field]: value }))}
+          onSubmit={async () => {
+            setAuthLoading(true);
+            setAuthMessage("");
+            try {
+              const path = authMode === "login" ? "/api/users/login" : "/api/users/register";
+              const payload =
+                authMode === "login"
+                  ? { username: form.username, password: form.password }
+                  : form;
+              const response = await fetch(`${apiUrl}${path}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              const data = await response.json();
+              if (!response.ok) throw new Error(data.message || "Request gagal.");
+              window.localStorage.setItem("we10_user", JSON.stringify(data.user));
+              setUser(data.user);
+              setAuthMode(null);
+              setForm({ username: "", password: "", name: "", phone: "", email: "" });
+            } catch (error) {
+              setAuthMessage(error instanceof Error ? error.message : "Request gagal.");
+            } finally {
+              setAuthLoading(false);
+            }
+          }}
+        />
+      ) : null}
     </header>
+  );
+}
+
+function AuthModal({
+  mode,
+  form,
+  message,
+  loading,
+  onClose,
+  onSwitch,
+  onChange,
+  onSubmit,
+}: {
+  mode: AuthMode;
+  form: { username: string; password: string; name: string; phone: string; email: string };
+  message: string;
+  loading: boolean;
+  onClose: () => void;
+  onSwitch: (mode: AuthMode) => void;
+  onChange: (field: keyof typeof form, value: string) => void;
+  onSubmit: () => void;
+}) {
+  const isRegister = mode === "register";
+
+  return (
+    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/70 px-4 text-white">
+      <form
+        className="w-full max-w-md rounded-2xl border border-white/10 bg-[#202126] p-6 shadow-2xl"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmit();
+        }}
+      >
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-black">{isRegister ? "Daftar" : "Masuk"}</h2>
+            <p className="mt-1 text-sm text-[#a1a8b3]">
+              {isRegister ? "Buat akun WEB10 baru." : "Masuk ke akun WEB10."}
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10">
+            <X size={19} />
+          </button>
+        </div>
+
+        <div className="grid gap-3">
+          <input className="h-12 rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none" placeholder="Username" value={form.username} onChange={(e) => onChange("username", e.target.value)} required />
+          {isRegister ? (
+            <>
+              <input className="h-12 rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none" placeholder="Name" value={form.name} onChange={(e) => onChange("name", e.target.value)} required />
+              <input className="h-12 rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none" placeholder="No hp" value={form.phone} onChange={(e) => onChange("phone", e.target.value)} required />
+              <input className="h-12 rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none" placeholder="Email" type="email" value={form.email} onChange={(e) => onChange("email", e.target.value)} required />
+            </>
+          ) : null}
+          <input className="h-12 rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none" placeholder="Password" type="password" value={form.password} onChange={(e) => onChange("password", e.target.value)} required />
+        </div>
+
+        <button className="mt-5 h-12 w-full rounded-xl bg-white font-bold text-black disabled:opacity-70" disabled={loading}>
+          {loading ? "Memproses..." : isRegister ? "Daftar" : "Masuk"}
+        </button>
+        <p className="mt-3 min-h-5 text-center text-sm text-[#ff9c90]">{message}</p>
+        <button
+          type="button"
+          onClick={() => onSwitch(isRegister ? "login" : "register")}
+          className="mt-2 w-full text-center text-sm font-semibold text-[#a1a8b3]"
+        >
+          {isRegister ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
+        </button>
+      </form>
+    </div>
   );
 }
 

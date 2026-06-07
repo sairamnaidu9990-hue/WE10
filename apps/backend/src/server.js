@@ -6,6 +6,7 @@ const express = require("express");
 const { connectDatabase } = require("./db");
 const AdminUser = require("./models/adminUser");
 const BrandSettings = require("./models/brandSettings");
+const User = require("./models/user");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -170,6 +171,181 @@ app.post("/api/admin/login", async (req, res) => {
     return res.status(500).json({
       message: "Server gagal memproses login.",
     });
+  }
+});
+
+function formatUser(user) {
+  return {
+    id: user._id,
+    username: user.username,
+    name: user.name,
+    phone: user.phone,
+    email: user.email,
+    isSuspended: user.isSuspended,
+    lastLoginAt: user.lastLoginAt,
+    createdAt: user.createdAt,
+  };
+}
+
+app.post("/api/users/register", async (req, res) => {
+  try {
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+    const name = String(req.body.name || "").trim();
+    const phone = String(req.body.phone || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+
+    if (!username || !password || !name || !phone || !email) {
+      return res.status(400).json({ message: "Semua data wajib diisi." });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password minimal 6 karakter." });
+    }
+
+    const duplicate = await User.findOne({
+      $or: [{ username }, { phone }, { email }],
+    });
+
+    if (duplicate) {
+      if (duplicate.username === username) {
+        return res.status(409).json({ message: "Username sudah terdaftar." });
+      }
+      if (duplicate.phone === phone) {
+        return res.status(409).json({ message: "No hp sudah terdaftar." });
+      }
+      return res.status(409).json({ message: "Email sudah terdaftar." });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({ username, passwordHash, name, phone, email });
+
+    return res.status(201).json({
+      message: "Daftar berhasil.",
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("User register failed:", error.message);
+    return res.status(500).json({ message: "Gagal mendaftar." });
+  }
+});
+
+app.post("/api/users/login", async (req, res) => {
+  try {
+    const username = String(req.body.username || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username dan password wajib diisi." });
+    }
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(401).json({ message: "Username atau password salah." });
+    }
+
+    if (user.isSuspended) {
+      return res.status(403).json({ message: "Akun sedang disuspend." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Username atau password salah." });
+    }
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    return res.json({
+      message: "Login berhasil.",
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("User login failed:", error.message);
+    return res.status(500).json({ message: "Gagal login." });
+  }
+});
+
+app.get("/api/admin/members", async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    return res.json({ users: users.map(formatUser) });
+  } catch (error) {
+    console.error("Failed to load users:", error.message);
+    return res.status(500).json({ message: "Gagal memuat user." });
+  }
+});
+
+app.patch("/api/admin/members/:id", async (req, res) => {
+  try {
+    const updates = {};
+    for (const field of ["username", "name", "phone", "email"]) {
+      if (typeof req.body[field] === "string") {
+        updates[field] = req.body[field].trim();
+      }
+    }
+    if (updates.username) updates.username = updates.username.toLowerCase();
+    if (updates.email) updates.email = updates.email.toLowerCase();
+
+    const duplicate = await User.findOne({
+      _id: { $ne: req.params.id },
+      $or: [
+        updates.username ? { username: updates.username } : null,
+        updates.phone ? { phone: updates.phone } : null,
+        updates.email ? { email: updates.email } : null,
+      ].filter(Boolean),
+    });
+
+    if (duplicate) {
+      return res.status(409).json({ message: "Username, no hp, atau email sudah digunakan." });
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan." });
+
+    return res.json({ message: "Data user berhasil diubah.", user: formatUser(user) });
+  } catch (error) {
+    console.error("Failed to update user:", error.message);
+    return res.status(500).json({ message: "Gagal mengubah user." });
+  }
+});
+
+app.patch("/api/admin/members/:id/password", async (req, res) => {
+  try {
+    const password = String(req.body.password || "");
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password minimal 6 karakter." });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.findByIdAndUpdate(req.params.id, { passwordHash }, { new: true });
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan." });
+
+    return res.json({ message: "Password user berhasil diubah.", user: formatUser(user) });
+  } catch (error) {
+    console.error("Failed to update user password:", error.message);
+    return res.status(500).json({ message: "Gagal mengubah password user." });
+  }
+});
+
+app.patch("/api/admin/members/:id/status", async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isSuspended: Boolean(req.body.isSuspended) },
+      { new: true },
+    );
+    if (!user) return res.status(404).json({ message: "User tidak ditemukan." });
+
+    return res.json({
+      message: user.isSuspended ? "User berhasil disuspend." : "Suspend user dibuka.",
+      user: formatUser(user),
+    });
+  } catch (error) {
+    console.error("Failed to update user status:", error.message);
+    return res.status(500).json({ message: "Gagal mengubah status user." });
   }
 });
 

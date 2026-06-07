@@ -37,6 +37,35 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "#38bdf8",
       trim: true,
     },
+    bannerEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    bannerImageUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    bannerTitle: {
+      type: String,
+      default: "Selamat datang di WEB10",
+      trim: true,
+    },
+    bannerSubtitle: {
+      type: String,
+      default: "Banner utama bisa diubah dari admin dashboard.",
+      trim: true,
+    },
+    bannerLink: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    bannerBackgroundColor: {
+      type: String,
+      default: "#17202a",
+      trim: true,
+    },
   },
   {
     timestamps: true,

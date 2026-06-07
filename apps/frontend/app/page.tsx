@@ -1,9 +1,10 @@
-import Header from "./components/Header";
+import Header, { BrandBanner } from "./components/Header";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#f4f7fb] text-[#101115]">
       <Header />
+      <BrandBanner />
 
       <section className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-16 md:px-8">
         <div className="max-w-2xl">

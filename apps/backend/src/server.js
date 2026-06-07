@@ -36,6 +36,12 @@ function formatBrandSettings(settings) {
     headerBackgroundColor: settings.headerBackgroundColor,
     headerTextColor: settings.headerTextColor,
     headerAccentColor: settings.headerAccentColor,
+    bannerEnabled: settings.bannerEnabled,
+    bannerImageUrl: settings.bannerImageUrl,
+    bannerTitle: settings.bannerTitle,
+    bannerSubtitle: settings.bannerSubtitle,
+    bannerLink: settings.bannerLink,
+    bannerBackgroundColor: settings.bannerBackgroundColor,
   };
 }
 
@@ -76,12 +82,21 @@ app.put("/api/admin/brand-settings", async (req, res) => {
       "headerBackgroundColor",
       "headerTextColor",
       "headerAccentColor",
+      "bannerImageUrl",
+      "bannerTitle",
+      "bannerSubtitle",
+      "bannerLink",
+      "bannerBackgroundColor",
     ];
 
     for (const field of allowedFields) {
       if (typeof req.body[field] === "string") {
         settings[field] = req.body[field].trim();
       }
+    }
+
+    if (typeof req.body.bannerEnabled === "boolean") {
+      settings.bannerEnabled = req.body.bannerEnabled;
     }
 
     await settings.save();

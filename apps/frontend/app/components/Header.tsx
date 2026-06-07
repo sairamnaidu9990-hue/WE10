@@ -10,6 +10,12 @@ type BrandSettings = {
   headerBackgroundColor: string;
   headerTextColor: string;
   headerAccentColor: string;
+  bannerEnabled: boolean;
+  bannerImageUrl: string;
+  bannerTitle: string;
+  bannerSubtitle: string;
+  bannerLink: string;
+  bannerBackgroundColor: string;
 };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -21,9 +27,15 @@ const defaultSettings: BrandSettings = {
   headerBackgroundColor: "#101115",
   headerTextColor: "#ffffff",
   headerAccentColor: "#38bdf8",
+  bannerEnabled: true,
+  bannerImageUrl: "",
+  bannerTitle: "Selamat datang di WEB10",
+  bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
+  bannerLink: "",
+  bannerBackgroundColor: "#17202a",
 };
 
-export default function Header() {
+export function useBrandSettings() {
   const [settings, setSettings] = useState<BrandSettings>(defaultSettings);
 
   useEffect(() => {
@@ -42,6 +54,12 @@ export default function Header() {
 
     loadBrandSettings();
   }, []);
+
+  return settings;
+}
+
+export default function Header() {
+  const settings = useBrandSettings();
 
   useEffect(() => {
     document.title = settings.brandName || "WEB10";
@@ -99,4 +117,55 @@ export default function Header() {
       </div>
     </header>
   );
+}
+
+export function BrandBanner() {
+  const settings = useBrandSettings();
+
+  if (!settings.bannerEnabled) {
+    return null;
+  }
+
+  const banner = (
+    <section className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
+      <div
+        className="relative min-h-[180px] overflow-hidden rounded-2xl border shadow-sm md:min-h-[260px]"
+        style={{
+          backgroundColor: settings.bannerBackgroundColor,
+          borderColor: `${settings.headerAccentColor}33`,
+          color: settings.headerTextColor,
+        }}
+      >
+        {settings.bannerImageUrl ? (
+          <img
+            className="absolute inset-0 h-full w-full object-cover"
+            src={settings.bannerImageUrl}
+            alt={settings.bannerTitle || "WEB10 banner"}
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
+        <div className="relative flex min-h-[180px] max-w-2xl flex-col justify-end p-6 md:min-h-[260px] md:p-8">
+          <p className="text-sm font-black uppercase" style={{ color: settings.headerAccentColor }}>
+            {settings.brandName || "WEB10"}
+          </p>
+          <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+            {settings.bannerTitle || "Selamat datang di WEB10"}
+          </h2>
+          <p className="mt-3 max-w-xl text-base leading-7 opacity-80">
+            {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+
+  if (settings.bannerLink) {
+    return (
+      <a className="block" href={settings.bannerLink}>
+        {banner}
+      </a>
+    );
+  }
+
+  return banner;
 }

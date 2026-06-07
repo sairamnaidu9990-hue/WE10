@@ -11,7 +11,20 @@ type BrandSettings = {
   headerBackgroundColor: string;
   headerTextColor: string;
   headerAccentColor: string;
+  bannerEnabled: boolean;
+  bannerImageUrl: string;
+  bannerTitle: string;
+  bannerSubtitle: string;
+  bannerLink: string;
+  bannerBackgroundColor: string;
 };
+
+type BrandTextField = Exclude<keyof BrandSettings, "bannerEnabled">;
+type BrandColorField =
+  | "headerBackgroundColor"
+  | "headerTextColor"
+  | "headerAccentColor"
+  | "bannerBackgroundColor";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const defaultSettings: BrandSettings = {
@@ -22,6 +35,12 @@ const defaultSettings: BrandSettings = {
   headerBackgroundColor: "#101115",
   headerTextColor: "#ffffff",
   headerAccentColor: "#38bdf8",
+  bannerEnabled: true,
+  bannerImageUrl: "",
+  bannerTitle: "Selamat datang di WEB10",
+  bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
+  bannerLink: "",
+  bannerBackgroundColor: "#17202a",
 };
 
 export default function SettingsPage() {
@@ -48,7 +67,14 @@ export default function SettingsPage() {
     loadSettings();
   }, []);
 
-  function updateField(field: keyof BrandSettings, value: string) {
+  function updateField(field: BrandTextField, value: string) {
+    setSettings((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function updateBooleanField(field: keyof BrandSettings, value: boolean) {
     setSettings((current) => ({
       ...current,
       [field]: value,
@@ -140,27 +166,23 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {[
+            {([
               ["headerBackgroundColor", "Warna Background Header"],
               ["headerTextColor", "Warna Text Header"],
               ["headerAccentColor", "Warna Accent Header"],
-            ].map(([field, label]) => (
+            ] as Array<[BrandColorField, string]>).map(([field, label]) => (
               <label key={field} className="block">
                 <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">{label}</span>
                 <div className="flex h-12 overflow-hidden rounded-xl border border-white/10 bg-[#2a2b31]">
                   <input
-                    value={settings[field as keyof BrandSettings]}
-                    onChange={(event) =>
-                      updateField(field as keyof BrandSettings, event.target.value)
-                    }
+                    value={settings[field]}
+                    onChange={(event) => updateField(field, event.target.value)}
                     className="h-full w-14 border-0 bg-transparent p-1"
                     type="color"
                   />
                   <input
-                    value={settings[field as keyof BrandSettings]}
-                    onChange={(event) =>
-                      updateField(field as keyof BrandSettings, event.target.value)
-                    }
+                    value={settings[field]}
+                    onChange={(event) => updateField(field, event.target.value)}
                     className="min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
                   />
                 </div>
@@ -192,6 +214,119 @@ export default function SettingsPage() {
                 </span>
               )}
               <strong className="text-xl">{settings.brandName || "WEB10"}</strong>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#18191e] p-5">
+            <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Banner Frontend</h2>
+                <p className="mt-1 text-sm text-[#a1a8b3]">
+                  Banner tampil sebagai space utama tepat di bawah header frontend.
+                </p>
+              </div>
+              <label className="flex items-center gap-3 text-sm font-semibold text-[#d5d8df]">
+                <input
+                  checked={settings.bannerEnabled}
+                  onChange={(event) => updateBooleanField("bannerEnabled", event.target.checked)}
+                  className="h-4 w-4 accent-white"
+                  type="checkbox"
+                />
+                Aktifkan banner
+              </label>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Judul Banner</span>
+                <input
+                  value={settings.bannerTitle}
+                  onChange={(event) => updateField("bannerTitle", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="Selamat datang di WEB10"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Link Banner</span>
+                <input
+                  value={settings.bannerLink}
+                  onChange={(event) => updateField("bannerLink", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="https://..."
+                />
+              </label>
+            </div>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_220px]">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Subtitle Banner</span>
+                <input
+                  value={settings.bannerSubtitle}
+                  onChange={(event) => updateField("bannerSubtitle", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  placeholder="Deskripsi banner"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Warna Background</span>
+                <div className="flex h-12 overflow-hidden rounded-xl border border-white/10 bg-[#2a2b31]">
+                  <input
+                    value={settings.bannerBackgroundColor}
+                    onChange={(event) => updateField("bannerBackgroundColor", event.target.value)}
+                    className="h-full w-14 border-0 bg-transparent p-1"
+                    type="color"
+                  />
+                  <input
+                    value={settings.bannerBackgroundColor}
+                    onChange={(event) => updateField("bannerBackgroundColor", event.target.value)}
+                    className="min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
+                  />
+                </div>
+              </label>
+            </div>
+
+            <label className="mt-4 block">
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Image URL Banner</span>
+              <input
+                value={settings.bannerImageUrl}
+                onChange={(event) => updateField("bannerImageUrl", event.target.value)}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                placeholder="https://.../banner.jpg"
+              />
+            </label>
+
+            <div
+              className="relative mt-5 min-h-[180px] overflow-hidden rounded-2xl border"
+              style={{
+                backgroundColor: settings.bannerBackgroundColor,
+                borderColor: settings.headerAccentColor,
+                color: settings.headerTextColor,
+              }}
+            >
+              {settings.bannerImageUrl ? (
+                <img
+                  className="absolute inset-0 h-full w-full object-cover"
+                  src={settings.bannerImageUrl}
+                  alt=""
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
+              <div className="relative flex min-h-[180px] max-w-xl flex-col justify-end p-6">
+                <p
+                  className="text-sm font-black uppercase"
+                  style={{ color: settings.headerAccentColor }}
+                >
+                  {settings.brandName || "WEB10"}
+                </p>
+                <h3 className="mt-2 text-3xl font-black">
+                  {settings.bannerTitle || "Selamat datang di WEB10"}
+                </h3>
+                <p className="mt-2 text-sm opacity-80">
+                  {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
+                </p>
+              </div>
             </div>
           </div>
 

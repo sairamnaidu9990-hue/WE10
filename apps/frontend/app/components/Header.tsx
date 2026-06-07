@@ -485,9 +485,10 @@ function AuthModal({
   const isRegister = mode === "register";
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/70 px-4 text-white">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/70 px-4 py-8 text-white">
+      <div className="flex min-h-full items-center justify-center">
       <form
-        className="w-full max-w-md rounded-2xl border border-white/10 bg-[#202126] p-6 shadow-2xl"
+        className="my-auto w-full max-w-md rounded-2xl border border-white/10 bg-[#202126] p-6 shadow-2xl"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -529,6 +530,7 @@ function AuthModal({
           {isRegister ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
         </button>
       </form>
+      </div>
     </div>
   );
 }

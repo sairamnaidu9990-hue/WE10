@@ -5,6 +5,8 @@ import AdminShell from "../../components/AdminShell";
 
 type BrandSettings = {
   brandName: string;
+  frontendTitle: string;
+  frontendDescription: string;
   logoUrl: string;
   faviconUrl: string;
   domain: string;
@@ -31,6 +33,9 @@ type BrandColorField =
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const defaultSettings: BrandSettings = {
   brandName: "WEB10",
+  frontendTitle: "Platform WEB10 siap dikembangkan.",
+  frontendDescription:
+    "Header frontend ini membaca pengaturan brand dari backend sehingga nama, logo, domain, favicon, dan warna bisa diubah dari admin.",
   logoUrl: "",
   faviconUrl: "",
   domain: "",
@@ -142,6 +147,32 @@ export default function SettingsPage() {
                 onChange={(event) => updateField("domain", event.target.value)}
                 className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
                 placeholder="https://domainkamu.com"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">
+                Title Frontend
+              </span>
+              <input
+                value={settings.frontendTitle}
+                onChange={(event) => updateField("frontendTitle", event.target.value)}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                placeholder="Platform WEB10 siap dikembangkan."
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">
+                Deskripsi Frontend
+              </span>
+              <input
+                value={settings.frontendDescription}
+                onChange={(event) => updateField("frontendDescription", event.target.value)}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                placeholder="Deskripsi frontend"
               />
             </label>
           </div>

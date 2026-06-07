@@ -30,6 +30,8 @@ app.get("/health", (req, res) => {
 function formatBrandSettings(settings) {
   return {
     brandName: settings.brandName,
+    frontendTitle: settings.frontendTitle,
+    frontendDescription: settings.frontendDescription,
     logoUrl: settings.logoUrl,
     faviconUrl: settings.faviconUrl,
     domain: settings.domain,
@@ -77,6 +79,8 @@ app.put("/api/admin/brand-settings", async (req, res) => {
     const settings = await getBrandSettings();
     const allowedFields = [
       "brandName",
+      "frontendTitle",
+      "frontendDescription",
       "logoUrl",
       "faviconUrl",
       "domain",

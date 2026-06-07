@@ -6,6 +6,8 @@ import { navItems } from "./MainNavbar";
 
 type BrandSettings = {
   brandName: string;
+  frontendTitle: string;
+  frontendDescription: string;
   logoUrl: string;
   faviconUrl: string;
   domain: string;
@@ -24,6 +26,9 @@ type BrandSettings = {
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const defaultSettings: BrandSettings = {
   brandName: "WEB10",
+  frontendTitle: "Platform WEB10 siap dikembangkan.",
+  frontendDescription:
+    "Header frontend ini membaca pengaturan brand dari backend sehingga nama, logo, domain, favicon, dan warna bisa diubah dari admin.",
   logoUrl: "",
   faviconUrl: "",
   domain: "",
@@ -70,7 +75,17 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    document.title = settings.brandName || "WEB10";
+    document.title = settings.frontendTitle || settings.brandName || "WEB10";
+
+    let description = document.querySelector<HTMLMetaElement>("meta[name='description']");
+
+    if (!description) {
+      description = document.createElement("meta");
+      description.name = "description";
+      document.head.appendChild(description);
+    }
+
+    description.content = settings.frontendDescription || `${settings.brandName} frontend`;
 
     if (settings.faviconUrl) {
       let favicon = document.querySelector<HTMLLinkElement>("link[rel='icon']");

@@ -7,6 +7,17 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "WEB10",
       trim: true,
     },
+    frontendTitle: {
+      type: String,
+      default: "Platform WEB10 siap dikembangkan.",
+      trim: true,
+    },
+    frontendDescription: {
+      type: String,
+      default:
+        "Header frontend ini membaca pengaturan brand dari backend sehingga nama, logo, domain, favicon, dan warna bisa diubah dari admin.",
+      trim: true,
+    },
     logoUrl: {
       type: String,
       default: "",

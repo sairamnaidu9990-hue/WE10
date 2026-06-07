@@ -4,7 +4,31 @@ import { ExternalLink } from "lucide-react";
 import { useBrandSettings } from "./Header";
 
 export default function Footer() {
-  const { settings } = useBrandSettings();
+  const { settings, isLoading } = useBrandSettings();
+
+  if (isLoading) {
+    return (
+      <footer className="mt-auto border-t border-[#d9e2ec] bg-[#101115]">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-10 md:grid-cols-[1fr_auto] md:px-8">
+          <div className="max-w-xl">
+            <div className="flex items-center gap-3">
+              <span className="h-10 w-10 animate-pulse rounded-lg bg-white/15" />
+              <span className="h-6 w-28 animate-pulse rounded bg-white/15" />
+            </div>
+            <div className="mt-4 grid gap-2">
+              <span className="h-4 w-full max-w-md animate-pulse rounded bg-white/15" />
+              <span className="h-4 w-3/4 animate-pulse rounded bg-white/15" />
+            </div>
+          </div>
+          <div className="grid gap-3 md:min-w-56">
+            <span className="h-10 animate-pulse rounded-lg bg-white/15" />
+            <span className="h-10 animate-pulse rounded-lg bg-white/15" />
+            <span className="h-10 animate-pulse rounded-lg bg-white/15" />
+          </div>
+        </div>
+      </footer>
+    );
+  }
 
   if (!settings.footerEnabled) {
     return null;

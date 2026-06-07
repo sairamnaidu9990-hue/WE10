@@ -136,6 +136,10 @@ export default function Header() {
   }
 
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     document.title = settings.frontendTitle || settings.brandName || "WEB10";
 
     let description = document.querySelector<HTMLMetaElement>("meta[name='description']");
@@ -159,7 +163,7 @@ export default function Header() {
 
       favicon.href = settings.faviconUrl;
     }
-  }, [settings]);
+  }, [isLoading, settings]);
 
   return (
     <header

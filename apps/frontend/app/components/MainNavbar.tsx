@@ -11,7 +11,20 @@ export const navItems = [
 ];
 
 export default function MainNavbar() {
-  const { settings } = useBrandSettings();
+  const { settings, isLoading } = useBrandSettings();
+
+  if (isLoading) {
+    return (
+      <nav className="hidden border-b border-white/10 bg-[#101115] md:block">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-3 md:px-6">
+          <span className="h-5 w-20 animate-pulse rounded bg-white/15" />
+          <span className="h-5 w-24 animate-pulse rounded bg-white/15" />
+          <span className="h-5 w-24 animate-pulse rounded bg-white/15" />
+          <span className="h-5 w-32 animate-pulse rounded bg-white/15" />
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav

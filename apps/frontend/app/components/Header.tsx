@@ -54,7 +54,7 @@ const defaultSettings: BrandSettings = {
   domain: "",
   headerBackgroundColor: "#101115",
   headerTextColor: "#ffffff",
-  headerAccentColor: "#38bdf8",
+  headerAccentColor: "#ffffff",
   frontendBackgroundColor: "#f4f7fb",
   bannerEnabled: true,
   bannerImageUrl: "",
@@ -164,6 +164,24 @@ export default function Header() {
       favicon.href = settings.faviconUrl;
     }
   }, [isLoading, settings]);
+
+  if (isLoading) {
+    return (
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#101115] text-white shadow-sm">
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 md:px-8">
+          <div className="flex items-center gap-3">
+            <span className="h-10 w-10 animate-pulse rounded-lg bg-white/15" />
+            <span className="h-6 w-24 animate-pulse rounded bg-white/15" />
+          </div>
+          <div className="hidden items-center gap-3 md:flex">
+            <span className="h-11 w-24 animate-pulse rounded-xl bg-white/15" />
+            <span className="h-11 w-24 animate-pulse rounded-xl bg-white/15" />
+          </div>
+          <span className="h-11 w-11 animate-pulse rounded-xl bg-white/15 md:hidden" />
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header

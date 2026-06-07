@@ -82,6 +82,16 @@ const brandSettingsSchema = new mongoose.Schema(
       default: "#17202a",
       trim: true,
     },
+    bannerDesktopHeight: {
+      type: String,
+      default: "260",
+      trim: true,
+    },
+    bannerMobileHeight: {
+      type: String,
+      default: "180",
+      trim: true,
+    },
     footerEnabled: {
       type: Boolean,
       default: true,

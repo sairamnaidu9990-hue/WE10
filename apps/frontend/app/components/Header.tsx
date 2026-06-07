@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { LogIn, LogOut, Menu, UserCircle, UserPlus, X } from "lucide-react";
 import { navItems } from "./MainNavbar";
@@ -21,6 +22,8 @@ type BrandSettings = {
   bannerSubtitle: string;
   bannerLink: string;
   bannerBackgroundColor: string;
+  bannerDesktopHeight: string;
+  bannerMobileHeight: string;
   footerEnabled: boolean;
   footerTitle: string;
   footerDescription: string;
@@ -62,6 +65,8 @@ const defaultSettings: BrandSettings = {
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
   bannerBackgroundColor: "#17202a",
+  bannerDesktopHeight: "260",
+  bannerMobileHeight: "180",
   footerEnabled: true,
   footerTitle: "WEB10",
   footerDescription: "Platform WEB10 siap melayani kebutuhan digital kamu.",
@@ -537,6 +542,8 @@ function AuthModal({
 
 export function BrandBanner() {
   const { settings, isLoading } = useBrandSettings();
+  const mobileHeight = Number(settings.bannerMobileHeight) || 180;
+  const desktopHeight = Number(settings.bannerDesktopHeight) || 260;
 
   if (!settings.bannerEnabled) {
     return null;
@@ -555,12 +562,14 @@ export function BrandBanner() {
   const banner = (
     <section className="mx-auto max-w-6xl px-5 pt-6 md:px-8">
       <div
-        className="relative min-h-[180px] overflow-hidden rounded-2xl border shadow-sm md:min-h-[260px]"
+        className="relative min-h-[var(--banner-mobile-height)] overflow-hidden rounded-2xl border shadow-sm md:min-h-[var(--banner-desktop-height)]"
         style={{
+          "--banner-mobile-height": `${mobileHeight}px`,
+          "--banner-desktop-height": `${desktopHeight}px`,
           backgroundColor: settings.bannerBackgroundColor,
           borderColor: `${settings.headerAccentColor}33`,
           color: settings.headerTextColor,
-        }}
+        } as CSSProperties}
       >
         {settings.bannerImageUrl ? (
           <img
@@ -570,7 +579,7 @@ export function BrandBanner() {
           />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
-        <div className="relative flex min-h-[180px] max-w-2xl flex-col justify-end p-6 md:min-h-[260px] md:p-8">
+        <div className="relative flex min-h-[var(--banner-mobile-height)] max-w-2xl flex-col justify-end p-6 md:min-h-[var(--banner-desktop-height)] md:p-8">
           <p className="text-xs font-bold uppercase" style={{ color: settings.headerAccentColor }}>
             {settings.brandName || "WEB10"}
           </p>

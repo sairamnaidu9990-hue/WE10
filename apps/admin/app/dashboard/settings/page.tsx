@@ -20,6 +20,8 @@ type BrandSettings = {
   bannerSubtitle: string;
   bannerLink: string;
   bannerBackgroundColor: string;
+  bannerDesktopHeight: string;
+  bannerMobileHeight: string;
   footerEnabled: boolean;
   footerTitle: string;
   footerDescription: string;
@@ -63,6 +65,8 @@ const defaultSettings: BrandSettings = {
   bannerSubtitle: "Banner utama bisa diubah dari admin dashboard.",
   bannerLink: "",
   bannerBackgroundColor: "#17202a",
+  bannerDesktopHeight: "260",
+  bannerMobileHeight: "180",
   footerEnabled: true,
   footerTitle: "WEB10",
   footerDescription: "Platform WEB10 siap melayani kebutuhan digital kamu.",
@@ -284,6 +288,7 @@ export default function SettingsPage() {
                 <h2 className="text-xl font-bold">Banner Frontend</h2>
                 <p className="mt-1 text-sm text-[#a1a8b3]">
                   Banner tampil sebagai space utama tepat di bawah header frontend.
+                  Rekomendasi gambar: 1920 x 600 px, minimal 1440 x 450 px.
                 </p>
               </div>
               <label className="flex items-center gap-3 text-sm font-semibold text-[#d5d8df]">
@@ -348,6 +353,34 @@ export default function SettingsPage() {
               </label>
             </div>
 
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">
+                  Tinggi Banner Desktop (px)
+                </span>
+                <input
+                  value={settings.bannerDesktopHeight}
+                  onChange={(event) => updateField("bannerDesktopHeight", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  inputMode="numeric"
+                  placeholder="260"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">
+                  Tinggi Banner Mobile (px)
+                </span>
+                <input
+                  value={settings.bannerMobileHeight}
+                  onChange={(event) => updateField("bannerMobileHeight", event.target.value)}
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                  inputMode="numeric"
+                  placeholder="180"
+                />
+              </label>
+            </div>
+
             <label className="mt-4 block">
               <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Image URL Banner</span>
               <input
@@ -364,6 +397,7 @@ export default function SettingsPage() {
                 backgroundColor: settings.bannerBackgroundColor,
                 borderColor: settings.headerAccentColor,
                 color: settings.headerTextColor,
+                minHeight: `${Number(settings.bannerDesktopHeight) || 260}px`,
               }}
             >
               {settings.bannerImageUrl ? (
@@ -374,7 +408,7 @@ export default function SettingsPage() {
                 />
               ) : null}
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
-              <div className="relative flex min-h-[180px] max-w-xl flex-col justify-end p-6">
+              <div className="relative flex max-w-xl flex-col justify-end p-6" style={{ minHeight: `${Number(settings.bannerDesktopHeight) || 260}px` }}>
                 <p
                   className="text-sm font-black uppercase"
                   style={{ color: settings.headerAccentColor }}

@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { LogIn, LogOut, Menu, UserCircle, UserPlus, X } from "lucide-react";
 import { navItems } from "./MainNavbar";
 
@@ -490,9 +491,18 @@ function AuthModal({
   onSubmit: () => void;
 }) {
   const isRegister = mode === "register";
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/70 px-4 py-8 text-white">
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black/70 px-4 py-8 text-white">
       <div className="flex min-h-full items-center justify-center">
       <form
         className="my-auto w-full max-w-md rounded-2xl border border-white/10 bg-[#202126] p-6 shadow-2xl"
@@ -538,7 +548,8 @@ function AuthModal({
         </button>
       </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

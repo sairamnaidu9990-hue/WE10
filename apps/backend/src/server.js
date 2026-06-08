@@ -41,7 +41,7 @@ app.use(cors());
 app.use(express.json());
 
 async function getGameLobbySettings(roomId) {
-  const game = await Product.findOne({ slug: roomId });
+  const game = await Product.findOne({ slug: String(roomId || "").trim().toLowerCase() });
   const minPlayers = Math.min(Math.max(Number(game?.minPlayers) || 3, 1), 10);
   const maxPlayers = Math.min(Math.max(Number(game?.maxPlayers) || 10, minPlayers), 10);
 
@@ -50,6 +50,12 @@ async function getGameLobbySettings(roomId) {
     maxPlayers,
     lobbyName: game?.lobbyName || "Konami Cup National",
   };
+}
+
+function applyKonamiRoomSettings(room, settings) {
+  room.lobbyName = settings.lobbyName;
+  room.minPlayers = settings.minPlayers;
+  room.maxPlayers = settings.maxPlayers;
 }
 
 async function getKonamiRoom(roomId) {
@@ -71,6 +77,14 @@ async function getKonamiRoom(roomId) {
   }
 
   return konamiRooms.get(roomId);
+}
+
+async function refreshKonamiRoomSettings(room) {
+  if (room.status !== "lobby") return room;
+
+  const settings = await getGameLobbySettings(room.id);
+  applyKonamiRoomSettings(room, settings);
+  return room;
 }
 
 function formatKonamiRoom(room) {
@@ -152,7 +166,7 @@ function createKonamiBracket(players) {
 
 io.on("connection", (socket) => {
   socket.on("konami:join", async (payload = {}, callback) => {
-    const roomId = String(payload.roomId || payload.gameSlug || "konami-cup").trim();
+    const roomId = String(payload.roomId || payload.gameSlug || "konami-cup").trim().toLowerCase();
     const username = String(payload.username || payload.playerName || "").trim().toLowerCase().slice(0, 24);
     const userId = String(payload.userId || "").trim();
 
@@ -161,7 +175,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const room = await getKonamiRoom(roomId);
+    const room = await refreshKonamiRoomSettings(await getKonamiRoom(roomId));
 
     if (room.status !== "lobby") {
       callback?.({ ok: false, message: "Game sudah berjalan." });

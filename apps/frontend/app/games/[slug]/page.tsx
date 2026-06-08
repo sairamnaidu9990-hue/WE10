@@ -3,9 +3,7 @@
 import { ArrowLeft, Package } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Footer from "../../components/Footer";
-import Header, { useBrandSettings } from "../../components/Header";
-import MainNavbar from "../../components/MainNavbar";
+import { useBrandSettings } from "../../components/Header";
 
 type Game = {
   id: string;
@@ -49,17 +47,17 @@ export default function GameDetailPage() {
       className="min-h-screen text-[#101115]"
       style={{ backgroundColor: settings.frontendBackgroundColor }}
     >
-      <Header />
-      <MainNavbar />
-
-      <section className="mx-auto max-w-5xl px-5 py-10 md:px-8">
-        <a className="inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]" href="/">
+      <section className="mx-auto max-w-5xl px-5 py-6 md:px-8">
+        <a
+          className="fixed left-4 top-4 z-30 inline-flex h-10 items-center gap-2 rounded-xl border border-[#d9e2ec] bg-white/90 px-4 text-xs font-bold uppercase text-[#0e7490] shadow-sm backdrop-blur transition hover:bg-white"
+          href="/"
+        >
           <ArrowLeft size={17} />
-          Kembali
+          Keluar
         </a>
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm">
+          <div className="mt-16 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm">
             <div className="h-20 w-20 animate-pulse rounded-2xl bg-[#d9e2ec]" />
             <div className="mt-6 h-9 w-64 animate-pulse rounded bg-[#d9e2ec]" />
             <div className="mt-4 grid gap-2">
@@ -68,7 +66,7 @@ export default function GameDetailPage() {
             </div>
           </div>
         ) : game ? (
-          <article className="mt-8 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm md:p-8">
+          <article className="mt-16 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm md:p-8">
             <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-2xl border border-[#d9e2ec] bg-[#f8fafc]">
               {game.logoUrl ? (
                 <img className="h-full w-full object-cover" src={game.logoUrl} alt={`${game.name} logo`} />
@@ -87,8 +85,6 @@ export default function GameDetailPage() {
           </div>
         )}
       </section>
-
-      <Footer />
     </main>
   );
 }

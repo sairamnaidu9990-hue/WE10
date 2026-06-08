@@ -424,21 +424,6 @@ export default function SettingsPage() {
                   style={{ objectFit: settings.bannerImageFit === "cover" ? "cover" : "contain" }}
                 />
               ) : null}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
-              <div className="relative flex max-w-xl flex-col justify-end p-6" style={{ minHeight: `${Number(settings.bannerDesktopHeight) || 260}px` }}>
-                <p
-                  className="text-sm font-black uppercase"
-                  style={{ color: settings.headerAccentColor }}
-                >
-                  {settings.brandName || "WEB10"}
-                </p>
-                <h3 className="mt-2 text-3xl font-black">
-                  {settings.bannerTitle || "Selamat datang di WEB10"}
-                </h3>
-                <p className="mt-2 text-sm opacity-80">
-                  {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
-                </p>
-              </div>
             </div>
           </div>
 

@@ -581,18 +581,6 @@ export function BrandBanner() {
             style={{ objectFit: settings.bannerImageFit === "cover" ? "cover" : "contain" }}
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
-        <div className="relative flex min-h-[var(--banner-mobile-height)] max-w-2xl flex-col justify-end p-6 md:min-h-[var(--banner-desktop-height)] md:p-8">
-          <p className="text-xs font-bold uppercase" style={{ color: settings.headerAccentColor }}>
-            {settings.brandName || "WEB10"}
-          </p>
-          <h2 className="mt-3 text-2xl font-bold leading-tight md:text-4xl">
-            {settings.bannerTitle || "Selamat datang di WEB10"}
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-6 opacity-80">
-            {settings.bannerSubtitle || "Banner utama bisa diubah dari admin dashboard."}
-          </p>
-        </div>
       </div>
     </section>
   );

@@ -10,6 +10,9 @@ type Game = {
   slug: string;
   logoUrl: string;
   shortDescription: string;
+  minPlayers: number;
+  maxPlayers: number;
+  lobbyName: string;
 };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -23,6 +26,9 @@ export default function GamesPage() {
     name: "",
     logoUrl: "",
     shortDescription: "",
+    minPlayers: "3",
+    maxPlayers: "10",
+    lobbyName: "Konami Cup National",
   });
 
   async function loadGames() {
@@ -57,7 +63,14 @@ export default function GamesPage() {
 
       if (!response.ok) throw new Error(data.message || "Gagal menambahkan game.");
       setGames((current) => [data.game, ...current]);
-      setForm({ name: "", logoUrl: "", shortDescription: "" });
+      setForm({
+        name: "",
+        logoUrl: "",
+        shortDescription: "",
+        minPlayers: "3",
+        maxPlayers: "10",
+        lobbyName: "Konami Cup National",
+      });
       setMessage(data.message);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Gagal menambahkan game.");
@@ -102,7 +115,7 @@ export default function GamesPage() {
     }
   }
 
-  function updateGame(gameId: string, field: keyof Game, value: string) {
+  function updateGame(gameId: string, field: keyof Game, value: string | number) {
     setGames((current) =>
       current.map((game) =>
         game.id === gameId ? { ...game, [field]: value } : game,
@@ -156,6 +169,37 @@ export default function GamesPage() {
               placeholder="Tuliskan penjelasan singkat game"
             />
           </label>
+          <div className="grid gap-4 md:grid-cols-3">
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Minimal Player</span>
+              <input
+                value={form.minPlayers}
+                onChange={(event) => setForm((current) => ({ ...current, minPlayers: event.target.value }))}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                inputMode="numeric"
+                placeholder="3"
+              />
+            </label>
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Maksimal Player</span>
+              <input
+                value={form.maxPlayers}
+                onChange={(event) => setForm((current) => ({ ...current, maxPlayers: event.target.value }))}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                inputMode="numeric"
+                placeholder="10"
+              />
+            </label>
+            <label>
+              <span className="mb-2 block text-sm font-semibold text-[#d5d8df]">Room Lobby</span>
+              <input
+                value={form.lobbyName}
+                onChange={(event) => setForm((current) => ({ ...current, lobbyName: event.target.value }))}
+                className="h-12 w-full rounded-xl border border-white/10 bg-[#2a2b31] px-4 outline-none focus:border-white/30"
+                placeholder="Konami Cup National"
+              />
+            </label>
+          </div>
           <button className="flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-black md:w-fit">
             <Plus size={18} />
             Tambah Game
@@ -203,6 +247,28 @@ export default function GamesPage() {
                       className="min-h-24 rounded-xl border border-white/10 bg-[#2a2b31] p-4 text-sm outline-none focus:border-white/30"
                       placeholder="Penjelasan singkat"
                     />
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <input
+                        value={game.minPlayers}
+                        onChange={(event) => updateGame(game.id, "minPlayers", event.target.value)}
+                        className="h-11 rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
+                        inputMode="numeric"
+                        placeholder="Minimal player"
+                      />
+                      <input
+                        value={game.maxPlayers}
+                        onChange={(event) => updateGame(game.id, "maxPlayers", event.target.value)}
+                        className="h-11 rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
+                        inputMode="numeric"
+                        placeholder="Maksimal player"
+                      />
+                      <input
+                        value={game.lobbyName}
+                        onChange={(event) => updateGame(game.id, "lobbyName", event.target.value)}
+                        className="h-11 rounded-xl border border-white/10 bg-[#2a2b31] px-4 text-sm outline-none focus:border-white/30"
+                        placeholder="Room lobby"
+                      />
+                    </div>
                     <div className="flex flex-wrap gap-3">
                       <button
                         type="button"

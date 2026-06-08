@@ -12,6 +12,9 @@ type Game = {
   slug: string;
   logoUrl: string;
   shortDescription: string;
+  minPlayers: number;
+  maxPlayers: number;
+  lobbyName: string;
 };
 
 type LobbyPlayer = {
@@ -23,6 +26,7 @@ type LobbyPlayer = {
 
 type LobbyState = {
   id: string;
+  lobbyName: string;
   status: "lobby" | "started";
   minPlayers: number;
   maxPlayers: number;
@@ -215,7 +219,9 @@ export default function GameDetailPage() {
                   )}
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase text-[#0e7490]">Konami Cup WE10</p>
+                  <p className="text-xs font-bold uppercase text-[#0e7490]">
+                    {lobby?.lobbyName || game.lobbyName || "Konami Cup WE10"}
+                  </p>
                   <h1 className="mt-1 text-xl font-bold md:text-2xl">{game.name}</h1>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5d6673]">
                     {game.shortDescription || "Lobby simulasi game berbasis web."}
@@ -238,7 +244,8 @@ export default function GameDetailPage() {
                   <h2 className="text-sm font-bold">Masuk Lobby</h2>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-[#5d6673]">
-                  Minimal 3 player, maksimal 10 player. Semua player harus klik Mulai.
+                  Minimal {lobby?.minPlayers || game.minPlayers || 3} player, maksimal{" "}
+                  {lobby?.maxPlayers || game.maxPlayers || 10} player. Semua player harus klik Mulai.
                 </p>
 
                 <label className="mt-4 block">

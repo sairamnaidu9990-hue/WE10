@@ -24,6 +24,23 @@ const productSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    minPlayers: {
+      type: Number,
+      default: 3,
+      min: 1,
+      max: 10,
+    },
+    maxPlayers: {
+      type: Number,
+      default: 10,
+      min: 1,
+      max: 10,
+    },
+    lobbyName: {
+      type: String,
+      default: "Konami Cup National",
+      trim: true,
+    },
   },
   {
     timestamps: true,

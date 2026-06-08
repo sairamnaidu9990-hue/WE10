@@ -24,13 +24,28 @@ const konamiRooms = new Map();
 app.use(cors());
 app.use(express.json());
 
-function getKonamiRoom(roomId) {
+async function getGameLobbySettings(roomId) {
+  const game = await Product.findOne({ slug: roomId });
+  const minPlayers = Math.min(Math.max(Number(game?.minPlayers) || 3, 1), 10);
+  const maxPlayers = Math.min(Math.max(Number(game?.maxPlayers) || 10, minPlayers), 10);
+
+  return {
+    minPlayers,
+    maxPlayers,
+    lobbyName: game?.lobbyName || "Konami Cup National",
+  };
+}
+
+async function getKonamiRoom(roomId) {
   if (!konamiRooms.has(roomId)) {
+    const settings = await getGameLobbySettings(roomId);
+
     konamiRooms.set(roomId, {
       id: roomId,
+      lobbyName: settings.lobbyName,
       status: "lobby",
-      minPlayers: 3,
-      maxPlayers: 10,
+      minPlayers: settings.minPlayers,
+      maxPlayers: settings.maxPlayers,
       players: new Map(),
       startedAt: null,
       teamCount: null,
@@ -46,6 +61,7 @@ function formatKonamiRoom(room) {
 
   return {
     id: room.id,
+    lobbyName: room.lobbyName,
     status: room.status,
     minPlayers: room.minPlayers,
     maxPlayers: room.maxPlayers,
@@ -75,7 +91,7 @@ function startKonamiRoom(room) {
 }
 
 io.on("connection", (socket) => {
-  socket.on("konami:join", (payload = {}, callback) => {
+  socket.on("konami:join", async (payload = {}, callback) => {
     const roomId = String(payload.roomId || payload.gameSlug || "konami-cup").trim();
     const username = String(payload.username || payload.playerName || "").trim().toLowerCase().slice(0, 24);
     const userId = String(payload.userId || "").trim();
@@ -85,7 +101,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const room = getKonamiRoom(roomId);
+    const room = await getKonamiRoom(roomId);
 
     if (room.status !== "lobby") {
       callback?.({ ok: false, message: "Game sudah berjalan." });
@@ -113,9 +129,9 @@ io.on("connection", (socket) => {
     emitKonamiRoom(room);
   });
 
-  socket.on("konami:ready", (payload = {}, callback) => {
+  socket.on("konami:ready", async (payload = {}, callback) => {
     const roomId = socket.data.konamiRoomId || String(payload.roomId || "konami-cup");
-    const room = getKonamiRoom(roomId);
+    const room = await getKonamiRoom(roomId);
     const player = room.players.get(socket.id);
 
     if (!player) {
@@ -397,8 +413,22 @@ function formatProduct(product) {
     slug: product.slug,
     logoUrl: product.logoUrl,
     shortDescription: product.shortDescription,
+    minPlayers: product.minPlayers,
+    maxPlayers: product.maxPlayers,
+    lobbyName: product.lobbyName,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
+  };
+}
+
+function normalizeGameLobbySettings(body) {
+  const minPlayers = Math.min(Math.max(Number(body.minPlayers) || 3, 1), 10);
+  const maxPlayers = Math.min(Math.max(Number(body.maxPlayers) || 10, minPlayers), 10);
+
+  return {
+    minPlayers,
+    maxPlayers,
+    lobbyName: String(body.lobbyName || "Konami Cup National").trim(),
   };
 }
 
@@ -484,6 +514,7 @@ app.post("/api/admin/products", async (req, res) => {
     const name = String(req.body.name || "").trim();
     const logoUrl = String(req.body.logoUrl || "").trim();
     const shortDescription = String(req.body.shortDescription || "").trim();
+    const lobbySettings = normalizeGameLobbySettings(req.body);
 
     if (!name) {
       return res.status(400).json({ message: "Nama produk wajib diisi." });
@@ -494,6 +525,7 @@ app.post("/api/admin/products", async (req, res) => {
       slug: await makeUniqueProductSlug(name),
       logoUrl,
       shortDescription,
+      ...lobbySettings,
     });
 
     return res.status(201).json({
@@ -511,6 +543,7 @@ app.post("/api/admin/games", async (req, res) => {
     const name = String(req.body.name || "").trim();
     const logoUrl = String(req.body.logoUrl || "").trim();
     const shortDescription = String(req.body.shortDescription || "").trim();
+    const lobbySettings = normalizeGameLobbySettings(req.body);
 
     if (!name) {
       return res.status(400).json({ message: "Nama game wajib diisi." });
@@ -521,6 +554,7 @@ app.post("/api/admin/games", async (req, res) => {
       slug: await makeUniqueProductSlug(name),
       logoUrl,
       shortDescription,
+      ...lobbySettings,
     });
 
     return res.status(201).json({
@@ -546,6 +580,7 @@ app.patch("/api/admin/products/:id", async (req, res) => {
     if (typeof req.body.shortDescription === "string") {
       updates.shortDescription = req.body.shortDescription.trim();
     }
+    Object.assign(updates, normalizeGameLobbySettings(req.body));
 
     if (!updates.name) {
       return res.status(400).json({ message: "Nama produk wajib diisi." });
@@ -579,6 +614,7 @@ app.patch("/api/admin/games/:id", async (req, res) => {
     if (typeof req.body.shortDescription === "string") {
       updates.shortDescription = req.body.shortDescription.trim();
     }
+    Object.assign(updates, normalizeGameLobbySettings(req.body));
 
     if (!updates.name) {
       return res.status(400).json({ message: "Nama game wajib diisi." });

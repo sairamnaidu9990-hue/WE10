@@ -3,6 +3,8 @@ require("dotenv").config();
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 const { connectDatabase } = require("./db");
 const AdminUser = require("./models/adminUser");
 const BrandSettings = require("./models/brandSettings");
@@ -11,9 +13,166 @@ const User = require("./models/user");
 
 const app = express();
 const port = process.env.PORT || 5000;
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+const konamiRooms = new Map();
 
 app.use(cors());
 app.use(express.json());
+
+function getKonamiRoom(roomId) {
+  if (!konamiRooms.has(roomId)) {
+    konamiRooms.set(roomId, {
+      id: roomId,
+      status: "lobby",
+      minPlayers: 3,
+      maxPlayers: 10,
+      players: new Map(),
+      startedAt: null,
+      teamCount: null,
+    });
+  }
+
+  return konamiRooms.get(roomId);
+}
+
+function formatKonamiRoom(room) {
+  const players = Array.from(room.players.values()).sort((a, b) => a.order - b.order);
+  const readyCount = players.filter((player) => player.ready).length;
+
+  return {
+    id: room.id,
+    status: room.status,
+    minPlayers: room.minPlayers,
+    maxPlayers: room.maxPlayers,
+    playerCount: players.length,
+    readyCount,
+    canStart: players.length >= room.minPlayers && readyCount === players.length,
+    teamCount: room.teamCount,
+    startedAt: room.startedAt,
+    players,
+  };
+}
+
+function emitKonamiRoom(room) {
+  io.to(room.id).emit("konami:lobby-state", formatKonamiRoom(room));
+}
+
+function startKonamiRoom(room) {
+  const players = Array.from(room.players.values()).sort((a, b) => a.order - b.order);
+  room.status = "started";
+  room.startedAt = new Date().toISOString();
+  room.teamCount = players.length < 5 ? 10 : 14;
+
+  players.forEach((player, index) => {
+    player.order = index + 1;
+    player.ready = true;
+  });
+}
+
+io.on("connection", (socket) => {
+  socket.on("konami:join", (payload = {}, callback) => {
+    const roomId = String(payload.roomId || payload.gameSlug || "konami-cup").trim();
+    const playerName = String(payload.playerName || "").trim().slice(0, 24);
+
+    if (!playerName) {
+      callback?.({ ok: false, message: "Nama player wajib diisi." });
+      return;
+    }
+
+    const room = getKonamiRoom(roomId);
+
+    if (room.status !== "lobby") {
+      callback?.({ ok: false, message: "Game sudah berjalan." });
+      socket.emit("konami:lobby-state", formatKonamiRoom(room));
+      return;
+    }
+
+    if (!room.players.has(socket.id) && room.players.size >= room.maxPlayers) {
+      callback?.({ ok: false, message: "Lobby sudah penuh." });
+      socket.emit("konami:lobby-state", formatKonamiRoom(room));
+      return;
+    }
+
+    socket.join(room.id);
+    socket.data.konamiRoomId = room.id;
+    room.players.set(socket.id, {
+      id: socket.id,
+      name: playerName,
+      ready: false,
+      order: room.players.size + 1,
+    });
+
+    callback?.({ ok: true, playerId: socket.id });
+    emitKonamiRoom(room);
+  });
+
+  socket.on("konami:ready", (payload = {}, callback) => {
+    const roomId = socket.data.konamiRoomId || String(payload.roomId || "konami-cup");
+    const room = getKonamiRoom(roomId);
+    const player = room.players.get(socket.id);
+
+    if (!player) {
+      callback?.({ ok: false, message: "Player belum masuk lobby." });
+      return;
+    }
+
+    if (room.status !== "lobby") {
+      callback?.({ ok: false, message: "Game sudah berjalan." });
+      return;
+    }
+
+    player.ready = true;
+
+    if (room.players.size >= room.minPlayers && Array.from(room.players.values()).every((item) => item.ready)) {
+      startKonamiRoom(room);
+    }
+
+    callback?.({ ok: true });
+    emitKonamiRoom(room);
+  });
+
+  socket.on("konami:leave", () => {
+    const roomId = socket.data.konamiRoomId;
+    if (!roomId) return;
+
+    const room = konamiRooms.get(roomId);
+    if (!room) return;
+
+    room.players.delete(socket.id);
+    socket.leave(roomId);
+    socket.data.konamiRoomId = null;
+
+    Array.from(room.players.values())
+      .sort((a, b) => a.order - b.order)
+      .forEach((player, index) => {
+        player.order = index + 1;
+      });
+
+    emitKonamiRoom(room);
+  });
+
+  socket.on("disconnect", () => {
+    const roomId = socket.data.konamiRoomId;
+    if (!roomId) return;
+
+    const room = konamiRooms.get(roomId);
+    if (!room) return;
+
+    room.players.delete(socket.id);
+    Array.from(room.players.values())
+      .sort((a, b) => a.order - b.order)
+      .forEach((player, index) => {
+        player.order = index + 1;
+      });
+
+    emitKonamiRoom(room);
+  });
+});
 
 app.get("/", (req, res) => {
   res.json({
@@ -804,9 +963,10 @@ async function startServer() {
   try {
     await connectDatabase();
 
-    app.listen(port, () => {
+    httpServer.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
       console.log("MongoDB connected");
+      console.log("Socket.IO ready");
     });
   } catch (error) {
     console.error("Failed to start server:", error.message);

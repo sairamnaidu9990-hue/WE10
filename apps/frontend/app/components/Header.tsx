@@ -150,6 +150,19 @@ export default function Header() {
     }
   }, []);
 
+  useEffect(() => {
+    function openLoginModal() {
+      setAuthMessage("");
+      setAuthMode("login");
+    }
+
+    window.addEventListener("we10:open-login", openLoginModal);
+
+    return () => {
+      window.removeEventListener("we10:open-login", openLoginModal);
+    };
+  }, []);
+
   function handleLogout() {
     window.localStorage.removeItem("we10_user");
     setUser(null);

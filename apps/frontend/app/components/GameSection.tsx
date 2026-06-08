@@ -1,5 +1,6 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { ArrowRight, Package } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -16,6 +17,17 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 export default function GameSection() {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+
+  function handleGameClick(event: MouseEvent<HTMLAnchorElement>) {
+    const storedUser = window.localStorage.getItem("we10_user");
+
+    if (storedUser) {
+      return;
+    }
+
+    event.preventDefault();
+    window.dispatchEvent(new Event("we10:open-login"));
+  }
 
   useEffect(() => {
     async function loadGames() {
@@ -48,6 +60,7 @@ export default function GameSection() {
             <a
               key={game.id}
               href={`/games/${game.slug}`}
+              onClick={handleGameClick}
               className="group flex min-h-48 flex-col justify-between rounded-2xl border border-[#d9e2ec] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
             >
               <div>

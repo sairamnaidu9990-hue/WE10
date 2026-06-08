@@ -20,6 +20,22 @@ const io = new Server(httpServer, {
   },
 });
 const konamiRooms = new Map();
+const konamiTeamPool = [
+  { id: "argentina", name: "Argentina" },
+  { id: "brazil", name: "Brazil" },
+  { id: "france", name: "France" },
+  { id: "germany", name: "Germany" },
+  { id: "italy", name: "Italy" },
+  { id: "spain", name: "Spain" },
+  { id: "england", name: "England" },
+  { id: "portugal", name: "Portugal" },
+  { id: "netherlands", name: "Netherlands" },
+  { id: "belgium", name: "Belgium" },
+  { id: "japan", name: "Japan" },
+  { id: "korea-republic", name: "Korea Republic" },
+  { id: "uruguay", name: "Uruguay" },
+  { id: "croatia", name: "Croatia" },
+];
 
 app.use(cors());
 app.use(express.json());
@@ -49,6 +65,8 @@ async function getKonamiRoom(roomId) {
       players: new Map(),
       startedAt: null,
       teamCount: null,
+      availableTeams: [],
+      bracket: [],
     });
   }
 
@@ -69,6 +87,8 @@ function formatKonamiRoom(room) {
     readyCount,
     canStart: players.length >= room.minPlayers && readyCount === players.length,
     teamCount: room.teamCount,
+    availableTeams: room.availableTeams,
+    bracket: room.bracket,
     startedAt: room.startedAt,
     players,
   };
@@ -83,11 +103,51 @@ function startKonamiRoom(room) {
   room.status = "started";
   room.startedAt = new Date().toISOString();
   room.teamCount = players.length < 5 ? 10 : 14;
+  room.availableTeams = shuffleItems(konamiTeamPool).slice(0, room.teamCount);
 
   players.forEach((player, index) => {
     player.order = index + 1;
     player.ready = true;
+    player.assignedTeam = room.availableTeams[index] || null;
   });
+
+  room.bracket = createKonamiBracket(players);
+}
+
+function shuffleItems(items) {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function formatBracketSide(player) {
+  if (!player) return null;
+
+  return {
+    playerId: player.id,
+    name: player.name,
+    order: player.order,
+    team: player.assignedTeam,
+  };
+}
+
+function createKonamiBracket(players) {
+  const bracket = [];
+
+  for (let index = 0; index < players.length; index += 2) {
+    bracket.push({
+      match: bracket.length + 1,
+      sideA: formatBracketSide(players[index]),
+      sideB: formatBracketSide(players[index + 1]),
+    });
+  }
+
+  return bracket;
 }
 
 io.on("connection", (socket) => {

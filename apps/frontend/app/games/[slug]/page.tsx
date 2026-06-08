@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckCircle2, Loader2, Package, Play, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle2, GitBranch, Loader2, Package, Play, Shuffle, Trophy, Users } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
@@ -22,6 +22,25 @@ type LobbyPlayer = {
   name: string;
   ready: boolean;
   order: number;
+  assignedTeam: AssignedTeam | null;
+};
+
+type AssignedTeam = {
+  id: string;
+  name: string;
+};
+
+type BracketSide = {
+  playerId: string;
+  name: string;
+  order: number;
+  team: AssignedTeam | null;
+};
+
+type BracketMatch = {
+  match: number;
+  sideA: BracketSide | null;
+  sideB: BracketSide | null;
 };
 
 type LobbyState = {
@@ -34,6 +53,8 @@ type LobbyState = {
   readyCount: number;
   canStart: boolean;
   teamCount: number | null;
+  availableTeams: AssignedTeam[];
+  bracket: BracketMatch[];
   startedAt: string | null;
   players: LobbyPlayer[];
 };
@@ -313,7 +334,9 @@ export default function GameDetailPage() {
                           </span>
                           <div>
                             <p className="text-sm font-semibold">{player.name}</p>
-                            <p className="text-xs text-[#5d6673]">{player.id === playerId ? "Kamu" : "Player"}</p>
+                            <p className="text-xs text-[#5d6673]">
+                              {player.assignedTeam?.name || (player.id === playerId ? "Kamu" : "Player")}
+                            </p>
                           </div>
                         </div>
                         <span
@@ -333,6 +356,63 @@ export default function GameDetailPage() {
                 </div>
               </section>
             </div>
+
+            {lobby?.status === "started" ? (
+              <section className="grid gap-4 md:grid-cols-[1fr_1fr]">
+                <div className="rounded-2xl border border-[#d9e2ec] bg-[#f8fafc] p-4">
+                  <div className="flex items-center gap-2">
+                    <Shuffle size={18} className="text-[#0e7490]" />
+                    <h2 className="text-sm font-bold">Random Team</h2>
+                  </div>
+                  <p className="mt-1 text-xs text-[#5d6673]">
+                    Daftar peserta {lobby.lobbyName} berdasarkan nomor urut player.
+                  </p>
+
+                  <div className="mt-4 grid gap-2">
+                    {lobby.players.map((player) => (
+                      <div
+                        key={`team-${player.id}`}
+                        className="grid grid-cols-[42px_1fr] items-center gap-3 rounded-xl border border-[#d9e2ec] bg-white px-3 py-3"
+                      >
+                        <span className="grid h-9 w-9 place-items-center rounded-lg bg-[#f8fafc] text-xs font-bold text-[#0e7490]">
+                          {player.order}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold">{player.name}</p>
+                          <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-[#5d6673]">
+                            <Trophy size={13} className="text-[#0e7490]" />
+                            {player.assignedTeam?.name || "Team belum dipilih"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-[#d9e2ec] bg-white p-4">
+                  <div className="flex items-center gap-2">
+                    <GitBranch size={18} className="text-[#0e7490]" />
+                    <h2 className="text-sm font-bold">Bracket</h2>
+                  </div>
+                  <p className="mt-1 text-xs text-[#5d6673]">
+                    Placeholder bracket awal, pertandingan dibuat dari nomor urut player.
+                  </p>
+
+                  <div className="mt-4 grid gap-3">
+                    {lobby.bracket.map((match) => (
+                      <div key={match.match} className="rounded-xl border border-[#d9e2ec] bg-[#f8fafc] p-3">
+                        <p className="mb-3 text-xs font-bold uppercase text-[#5d6673]">Match {match.match}</p>
+                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                          <BracketSideCard side={match.sideA} fallback="A" />
+                          <span className="text-xs font-black text-[#0e7490]">VS</span>
+                          <BracketSideCard side={match.sideB} fallback="BYE" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : null}
           </article>
         ) : (
           <div className="mt-8 rounded-2xl border border-dashed border-[#cbd5e1] bg-white/70 p-8 text-center text-sm font-semibold text-[#5d6673]">
@@ -341,5 +421,21 @@ export default function GameDetailPage() {
         )}
       </section>
     </main>
+  );
+}
+
+function BracketSideCard({ side, fallback }: { side: BracketSide | null; fallback: string }) {
+  return (
+    <div className="min-h-20 rounded-xl border border-[#d9e2ec] bg-white p-3">
+      {side ? (
+        <>
+          <p className="text-xs font-bold text-[#0e7490]">#{side.order}</p>
+          <p className="mt-1 truncate text-sm font-bold">{side.team?.name || fallback}</p>
+          <p className="mt-1 truncate text-xs font-semibold text-[#5d6673]">{side.name}</p>
+        </>
+      ) : (
+        <div className="grid min-h-14 place-items-center text-xs font-bold uppercase text-[#94a3b8]">{fallback}</div>
+      )}
+    </div>
   );
 }

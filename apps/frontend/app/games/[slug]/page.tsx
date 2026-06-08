@@ -34,6 +34,14 @@ type LobbyState = {
   players: LobbyPlayer[];
 };
 
+type FrontendUser = {
+  id: string;
+  username: string;
+  name: string;
+  phone: string;
+  email: string;
+};
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function GameDetailPage() {
@@ -43,6 +51,8 @@ export default function GameDetailPage() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState<FrontendUser | null>(null);
   const [playerName, setPlayerName] = useState("");
   const [playerId, setPlayerId] = useState("");
   const [isJoining, setIsJoining] = useState(false);
@@ -53,12 +63,17 @@ export default function GameDetailPage() {
     const storedUser = window.localStorage.getItem("we10_user");
     if (storedUser) {
       try {
-        const user = JSON.parse(storedUser);
-        setPlayerName(user.name || user.username || "");
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setPlayerName(parsedUser.username || "");
       } catch {
+        window.localStorage.removeItem("we10_user");
+        setUser(null);
         setPlayerName("");
       }
     }
+
+    setAuthChecked(true);
   }, []);
 
   useEffect(() => {
@@ -100,6 +115,10 @@ export default function GameDetailPage() {
 
   function joinLobby() {
     if (!socketRef.current || !params.slug) return;
+    if (!user) {
+      setMessage("Silakan login dulu sebelum masuk lobby.");
+      return;
+    }
 
     setIsJoining(true);
     setMessage("");
@@ -108,7 +127,9 @@ export default function GameDetailPage() {
       {
         roomId: params.slug,
         gameSlug: params.slug,
-        playerName,
+        playerName: user.username,
+        userId: user.id,
+        username: user.username,
       },
       (response: { ok: boolean; message?: string; playerId?: string }) => {
         setIsJoining(false);
@@ -141,6 +162,7 @@ export default function GameDetailPage() {
 
   const currentPlayer = lobby?.players.find((player) => player.id === playerId);
   const needsMorePlayers = lobby ? Math.max(lobby.minPlayers - lobby.playerCount, 0) : 0;
+  const isAuthLoading = !authChecked;
 
   return (
     <main
@@ -156,7 +178,7 @@ export default function GameDetailPage() {
           Keluar
         </a>
 
-        {loading ? (
+        {loading || isAuthLoading ? (
           <div className="mt-16 rounded-2xl border border-[#d9e2ec] bg-white p-6 shadow-sm">
             <div className="h-20 w-20 animate-pulse rounded-2xl bg-[#d9e2ec]" />
             <div className="mt-6 h-9 w-64 animate-pulse rounded bg-[#d9e2ec]" />
@@ -164,6 +186,22 @@ export default function GameDetailPage() {
               <div className="h-5 w-full animate-pulse rounded bg-[#d9e2ec]" />
               <div className="h-5 w-4/5 animate-pulse rounded bg-[#d9e2ec]" />
             </div>
+          </div>
+        ) : !user ? (
+          <div className="mt-16 rounded-2xl border border-[#d9e2ec] bg-white p-6 text-center shadow-sm md:p-8">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#f8fafc] text-[#0e7490]">
+              <Users size={28} />
+            </div>
+            <h1 className="mt-5 text-xl font-bold">Login diperlukan</h1>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#5d6673]">
+              Kamu harus login terlebih dahulu sebelum masuk lobby dan memainkan Konami Cup WE10.
+            </p>
+            <a
+              className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-[#101115] px-5 text-sm font-bold text-white"
+              href="/"
+            >
+              Kembali ke halaman utama
+            </a>
           </div>
         ) : game ? (
           <article className="mt-16 grid gap-5 rounded-2xl border border-[#d9e2ec] bg-white p-5 shadow-sm md:p-6">
@@ -207,10 +245,9 @@ export default function GameDetailPage() {
                   <span className="mb-2 block text-xs font-bold uppercase text-[#5d6673]">Nama Player</span>
                   <input
                     value={playerName}
-                    onChange={(event) => setPlayerName(event.target.value)}
-                    className="h-11 w-full rounded-xl border border-[#d9e2ec] bg-white px-4 text-sm outline-none focus:border-[#0e7490]"
-                    disabled={Boolean(currentPlayer) || lobby?.status === "started"}
-                    placeholder="Nama kamu"
+                    readOnly
+                    className="h-11 w-full rounded-xl border border-[#d9e2ec] bg-white px-4 text-sm font-semibold outline-none"
+                    placeholder="Username"
                   />
                 </label>
 
@@ -218,7 +255,7 @@ export default function GameDetailPage() {
                   <button
                     type="button"
                     onClick={joinLobby}
-                    disabled={!playerName.trim() || isJoining || lobby?.status === "started"}
+                    disabled={!user.username || isJoining || lobby?.status === "started"}
                     className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#101115] text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isJoining ? <Loader2 size={17} className="animate-spin" /> : <Users size={17} />}

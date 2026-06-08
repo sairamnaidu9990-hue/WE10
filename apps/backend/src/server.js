@@ -77,10 +77,11 @@ function startKonamiRoom(room) {
 io.on("connection", (socket) => {
   socket.on("konami:join", (payload = {}, callback) => {
     const roomId = String(payload.roomId || payload.gameSlug || "konami-cup").trim();
-    const playerName = String(payload.playerName || "").trim().slice(0, 24);
+    const username = String(payload.username || payload.playerName || "").trim().toLowerCase().slice(0, 24);
+    const userId = String(payload.userId || "").trim();
 
-    if (!playerName) {
-      callback?.({ ok: false, message: "Nama player wajib diisi." });
+    if (!username) {
+      callback?.({ ok: false, message: "Login diperlukan sebelum masuk lobby." });
       return;
     }
 
@@ -102,7 +103,8 @@ io.on("connection", (socket) => {
     socket.data.konamiRoomId = room.id;
     room.players.set(socket.id, {
       id: socket.id,
-      name: playerName,
+      userId,
+      name: username,
       ready: false,
       order: room.players.size + 1,
     });
